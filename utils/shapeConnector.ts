@@ -5,16 +5,22 @@ export type ConnectionType = "straight" | "curved" | "orthogonal";
 export type LineType = "line" | "arrow" | "double-arrow";
 
 /**
- * Shape interface that supports scaling
+ * Shape interface that supports scaling and rotation
  * scaleX and scaleY factors are applied from the top-left corner of the shape
+ * rotation is applied around the origin (top-left) by default, or around offsetX/offsetY if provided
+ * offset can be used as an alternative to offsetX/offsetY
  */
 export interface Shape {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
     scaleX?: number;
     scaleY?: number;
+    rotation?: number;
+    offsetX?: number;
+    offsetY?: number;
+    offset?: { x: number; y: number };
 }
 
 export interface ConnectionConfig {
@@ -40,57 +46,116 @@ export interface ConnectionOptions {
 }
 
 /**
+ * Rotate a point around a center point by a given angle in degrees
+ */
+function rotatePoint(
+    point: { x: number; y: number },
+    center: { x: number; y: number },
+    angleInDegrees: number,
+): { x: number; y: number } {
+    const angleInRadians = (angleInDegrees * Math.PI) / 180;
+    const cos = Math.cos(angleInRadians);
+    const sin = Math.sin(angleInRadians);
+    
+    const dx = point.x - center.x;
+    const dy = point.y - center.y;
+    
+    return {
+        x: center.x + (dx * cos - dy * sin),
+        y: center.y + (dx * sin + dy * cos),
+    };
+}
+
+/**
  * Get anchor point coordinates for a shape
  *
- * This function now supports scaled shapes. When scaleX/scaleY are provided,
- * the function calculates anchor points based on the effective scaled dimensions.
- *
- * Scale transformation is applied from the top-left corner of the shape.
+ * This function supports scaled and rotated shapes following Konva's transformation model:
+ * - Scale transformation is applied from the top-left corner of the shape
+ * - Rotation is applied around the origin (top-left corner) by default
+ * - If offsetX/offsetY or offset.x/offset.y are provided, rotation center is moved by those offset values
+ * - offset property takes priority over offsetX/offsetY if both are specified
  *
  * Example:
  * ```typescript
- * const shape = { x: 100, y: 100, width: 200, height: 100, scaleX: 1.5, scaleY: 2 };
+ * const shape = { 
+ *   x: 100, y: 100, width: 200, height: 100, 
+ *   scaleX: 1.5, scaleY: 2, rotation: 45,
+ *   offset: { x: 100, y: 50 }  // Rotate around center of scaled shape
+ * };
  * const rightAnchor = getAnchorPoint(shape, 'right');
- * // Returns the right edge of the scaled shape, accounting for top-left corner scaling
  * ```
  */
 export function getAnchorPoint(
     shape: Shape,
     anchor: AnchorPoint,
 ): { x: number; y: number } {
-    const { x, y, width, height, scaleX = 1, scaleY = 1 } = shape;
+    let { x, y, width, height, scaleX = 1, scaleY = 1, rotation = 0, offsetX = 0, offsetY = 0, offset } = shape;
+
+    // Validate shape dimensions
+    x ??= 0;
+    y ??= 0;
+    width ??= 0;
+    height ??= 0;
 
     // Calculate effective dimensions considering scale factors
     // Scaling happens from the top-left corner, so position stays the same
     const effectiveWidth = width * scaleX;
     const effectiveHeight = height * scaleY;
 
+    // Calculate anchor point without rotation first
+    let anchorPoint: { x: number; y: number };
+
     switch (anchor) {
         case "left":
-            return { x: x, y: y + effectiveHeight / 2 };
+            anchorPoint = { x: x, y: y + effectiveHeight / 2 };
+            break;
         case "right":
-            return {
+            anchorPoint = {
                 x: x + effectiveWidth,
                 y: y + effectiveHeight / 2,
             };
+            break;
         case "top":
-            return { x: x + effectiveWidth / 2, y: y };
+            anchorPoint = { x: x + effectiveWidth / 2, y: y };
+            break;
         case "bottom":
-            return {
+            anchorPoint = {
                 x: x + effectiveWidth / 2,
                 y: y + effectiveHeight,
             };
+            break;
         case "center":
-            return {
+            anchorPoint = {
                 x: x + effectiveWidth / 2,
                 y: y + effectiveHeight / 2,
             };
+            break;
         default:
-            return {
+            anchorPoint = {
                 x: x + effectiveWidth / 2,
                 y: y + effectiveHeight / 2,
             };
     }
+
+    // If there's no rotation, return the anchor point as is
+    if (rotation === 0) {
+        return anchorPoint;
+    }
+
+    // Calculate the rotation center based on Konva's model:
+    // - Default rotation center is at the origin (top-left: x, y)  
+    // - If offset.x/offset.y are provided, use those (takes priority)
+    // - Otherwise, if offsetX/offsetY are provided, use those
+    const finalOffsetX = offset?.x ?? offsetX;
+    const finalOffsetY = offset?.y ?? offsetY;
+    
+    const rotationCenter = {
+        x: x + finalOffsetX,
+        y: y + finalOffsetY,
+    };
+
+    // Rotate the anchor point around the rotation center
+    return rotatePoint(anchorPoint, rotationCenter, rotation);
 }
 
 /**

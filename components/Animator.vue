@@ -32,7 +32,7 @@ const currentStep = ref(-1);
 const totalSteps = ref(0);
 const isAnimating = ref(false);
 
-let updateInterval: NodeJS.Timeout | undefined = undefined;
+let updateInterval: NodeJS.Timeout | undefined;
 
 // Throttle the reactive updates to reduce overhead
 let updateScheduled = false;

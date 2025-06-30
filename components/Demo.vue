@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue";
 import { animate, step } from "../composables/useGeneratorAnimation";
-import Animator from './Animator.vue';
-
+import Animator from "./Animator.vue";
 
 const transformScale = ref(1);
 const transformOriginX = ref(0);
@@ -14,36 +13,23 @@ const iFrameStyle = computed(() => ({
 }));
 
 function* animation() {
-    yield animate(
-        transformScale,
-        {
-            value: 1.5,
-        },
-    )
+    yield animate(transformScale, {
+        value: 1.5,
+    });
 
-    yield animate(
-        transformOriginX,
-        {
-            value: 100,
-        },
-    )
+    yield animate(transformOriginX, {
+        value: 100,
+    });
 
     yield step(
-        animate(
-            transformOriginY,
-            {
-                value: 50,
-            },
-        ),
-        animate(
-            transformScale,
-            {
-                value: 1,
-            },
-        ),
-    )
+        animate(transformOriginY, {
+            value: 50,
+        }),
+        animate(transformScale, {
+            value: 1,
+        }),
+    );
 }
-
 </script>
 
 

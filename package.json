@@ -1,39 +1,39 @@
 {
-  "name": "slidev-addon-animations",
-  "version": "0.0.0",
-  "type": "module",
-  "keywords": [
-    "slidev-addon",
-    "slidev"
-  ],
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "scripts": {
-    "build": "slidev build example.md",
-    "dev": "slidev example.md --open",
-    "export": "slidev export example.md",
-    "screenshot": "slidev export example.md --format png"
-  },
-  "dependencies": {
-    "@slidev/theme-default": "^0.25.0",
-    "@slidev/types": "^51.8.2",
-    "konva": "^9.3.20",
-    "vue": "^3.5.17",
-    "vue-konva": "^3.2.1"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.0.6",
-    "@slidev/cli": "^51.8.2"
-  },
-  "//": "Learn more: https://sli.dev/guide/write-theme.html",
-  "slidev": {
-    "colorSchema": "both",
-    "defaults": {
-      "fonts": {
-        "sans": "Nunito Sans",
-        "mono": "Fira Code"
-      }
+    "name": "slidev-addon-animations",
+    "version": "0.0.0",
+    "type": "module",
+    "keywords": [
+        "slidev-addon",
+        "slidev"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "scripts": {
+        "build": "slidev build example.md",
+        "dev": "slidev example.md --open",
+        "export": "slidev export example.md",
+        "screenshot": "slidev export example.md --format png"
+    },
+    "dependencies": {
+        "@slidev/theme-default": "^0.25.0",
+        "@slidev/types": "^51.8.2",
+        "konva": "^9.3.20",
+        "vue": "^3.5.17",
+        "vue-konva": "^3.2.1"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "2.0.6",
+        "@slidev/cli": "^51.8.2"
+    },
+    "//": "Learn more: https://sli.dev/guide/write-theme.html",
+    "slidev": {
+        "colorSchema": "both",
+        "defaults": {
+            "fonts": {
+                "sans": "Nunito Sans",
+                "mono": "Fira Code"
+            }
+        }
     }
-  }
 }

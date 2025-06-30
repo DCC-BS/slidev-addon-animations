@@ -3,7 +3,12 @@ import {
     createAnimationStep,
     createAnimationTarget,
     useKonvaAnimation,
+    type AnimatableObject,
+    type EasingFunction,
 } from "./useKonvaAnimation";
+import type { Ref } from "vue";
+import { unref } from "vue";
+import type { ShapeConfig } from "konva/lib/Shape";
 
 // Animation properties with better defaults
 export interface AnimationProps {
@@ -34,9 +39,7 @@ export interface AnimationGroup {
 }
 
 // Type for things that can be yielded from generator
-export type YieldableAnimation =
-    | AnimationInstruction
-    | AnimationInstruction[];
+export type YieldableAnimation = AnimationInstruction | AnimationInstruction[];
 
 // Generator animation context with helper methods
 // Type for generator animation function
@@ -48,20 +51,23 @@ export type AnimationGeneratorFunction = Generator<
 
 // Helper functions for creating animation instructions
 export function animate(
-    target: unknown,
+    target: unknown | Ref<unknown>,
     properties: Record<string, unknown>,
     options?: AnimationProps,
 ): AnimationInstruction {
+    // Unpack ref if target is a ref, otherwise use target directly
+    const actualTarget = unref(target);
+    
     return {
         type: "animate",
-        target,
+        target: actualTarget,
         properties,
         options: options || {},
     };
 }
 
 export function moveTo(
-    target: unknown,
+    target: Ref<ShapeConfig> | ShapeConfig,
     x: number,
     y: number,
     options?: AnimationProps,
@@ -70,7 +76,7 @@ export function moveTo(
 }
 
 export function scaleTo(
-    target: unknown,
+    target: Ref<ShapeConfig> | ShapeConfig,
     scale: number | { x: number; y: number },
     options?: AnimationProps,
 ): AnimationInstruction {
@@ -81,7 +87,7 @@ export function scaleTo(
 }
 
 export function resizeTo(
-    target: unknown,
+    target: Ref<ShapeConfig> | ShapeConfig,
     width: number,
     height: number,
     options?: AnimationProps,
@@ -90,7 +96,7 @@ export function resizeTo(
 }
 
 export function rotateTo(
-    target: unknown,
+    target: Ref<ShapeConfig> | ShapeConfig,
     rotation: number,
     options?: AnimationProps,
 ): AnimationInstruction {
@@ -98,7 +104,7 @@ export function rotateTo(
 }
 
 export function fadeTo(
-    target: unknown,
+    target: Ref<ShapeConfig> | ShapeConfig,
     opacity: number,
     options?: AnimationProps,
 ): AnimationInstruction {
@@ -106,14 +112,14 @@ export function fadeTo(
 }
 
 export function hide(
-    target: unknown,
+    target: Ref<ShapeConfig> | ShapeConfig,
     options?: AnimationProps,
 ): AnimationInstruction {
     return fadeTo(target, 0, options);
 }
 
 export function show(
-    target: unknown,
+    target: Ref<ShapeConfig> | ShapeConfig,
     options?: AnimationProps,
 ): AnimationInstruction {
     return fadeTo(target, 1, options);
@@ -289,28 +295,46 @@ export function useGeneratorAnimation(
         // Convert to animation targets
         const animationTargets = Array.from(allTargets).map((target) => {
             const animationSteps = steps.map((step) => {
-                // Find animation for this target in this step
-                const targetAnimation = step.animations.find(
+                // Find ALL animations for this target in this step
+                const targetAnimations = step.animations.filter(
                     (anim) => anim.target === target,
                 );
 
-                if (targetAnimation) {
+                if (targetAnimations.length > 0) {
+                    // Merge all properties from animations targeting this object
+                    const mergedProperties: Record<string, unknown> = {};
+                    let duration = defaultDuration;
+                    let delay = 0;
+                    let easing = defaultEasing;
+
+                    // Process each animation and merge properties
+                    for (const targetAnimation of targetAnimations) {
+                        Object.assign(mergedProperties, targetAnimation.properties);
+                        
+                        // Use the maximum duration among all animations for this target
+                        duration = Math.max(duration, targetAnimation.options?.duration || defaultDuration);
+                        
+                        // Use the minimum delay (earliest start time)
+                        delay = Math.min(delay, targetAnimation.options?.delay || 0);
+                        
+                        // Use the last specified easing (could be improved with priority system)
+                        if (targetAnimation.options?.easing) {
+                            easing = targetAnimation.options.easing;
+                        }
+                    }
+
                     const resolvedEasing =
-                        typeof targetAnimation.options?.easing === "string"
-                            ? EasingPresets[
-                                  targetAnimation.options.easing as EasingPreset
-                              ]
-                            : targetAnimation.options?.easing ||
+                        typeof easing === "string"
+                            ? EasingPresets[easing as EasingPreset]
+                            : easing ||
                               (typeof defaultEasing === "string"
                                   ? EasingPresets[defaultEasing as EasingPreset]
                                   : defaultEasing);
 
-                    return createAnimationStep(targetAnimation.properties, {
-                        duration:
-                            targetAnimation.options?.duration ||
-                            defaultDuration,
-                        delay: targetAnimation.options?.delay || 0,
-                        easing: resolvedEasing,
+                    return createAnimationStep(mergedProperties as AnimatableObject, {
+                        duration,
+                        delay,
+                        easing: resolvedEasing as unknown as EasingFunction,
                     });
                 }
                 // No animation for this target in this step
@@ -318,8 +342,8 @@ export function useGeneratorAnimation(
             });
 
             return createAnimationTarget(
-                target,
-                captureInitialState(target),
+                target as AnimatableObject,
+                captureInitialState(target) as AnimatableObject,
                 animationSteps,
             );
         });
@@ -327,10 +351,6 @@ export function useGeneratorAnimation(
         return useKonvaAnimation(animationTargets, {
             skipThreshold,
             defaultDuration,
-            defaultEasing:
-                typeof defaultEasing === "string"
-                    ? EasingPresets[defaultEasing as EasingPreset]
-                    : defaultEasing,
         });
     };
 

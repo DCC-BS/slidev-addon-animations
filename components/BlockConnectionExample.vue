@@ -1,19 +1,20 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import type { StageConfig } from "konva/lib/Stage";
+import { computed, ref, watch } from "vue";
 import {
     animate,
-    step,
-    moveTo,
-    scaleTo,
+    EasingPresets,
     fadeTo,
-    EasingPresets
+    moveTo,
+    rotateTo,
+    scaleTo,
+    step,
 } from "../composables/useGeneratorAnimation";
-import Animator from './Animator.vue';
-import Block from './Block.vue';
-import Connection from './Connection.vue';
-import type { StageConfig } from 'konva/lib/Stage';
-import type { BlockConfig } from './Block.vue';
-import type { ConnectionOptions } from '../utils/shapeConnector';
+import type { ConnectionOptions } from "../utils/shapeConnector";
+import Animator from "./Animator.vue";
+import type { BlockConfig } from "./Block.vue";
+import Block from "./Block.vue";
+import Connection from "./Connection.vue";
 
 const stageConfig = ref<StageConfig>({
     width: 700,
@@ -26,10 +27,10 @@ const block1 = ref<BlockConfig>({
     y: 100,
     width: 120,
     height: 60,
-    text: 'Start',
+    text: "Start",
     opacity: 0,
     scaleX: 0.5,
-    scaleY: 0.5
+    scaleY: 0.5,
 });
 
 const block2 = ref<BlockConfig>({
@@ -37,10 +38,10 @@ const block2 = ref<BlockConfig>({
     y: 200,
     width: 120,
     height: 60,
-    text: 'Process',
+    text: "Process",
     opacity: 0,
     scaleX: 0.5,
-    scaleY: 0.5
+    scaleY: 0.5,
 });
 
 const block3 = ref<BlockConfig>({
@@ -48,10 +49,12 @@ const block3 = ref<BlockConfig>({
     y: 100,
     width: 120,
     height: 60,
-    text: 'End',
+    text: "End",
     opacity: 0,
     scaleX: 0.5,
-    scaleY: 0.5
+    scaleY: 0.5,
+    rotation: 0,
+    offset: { x: 50, y: 50 }, // Center the rotation
 });
 
 const block4 = ref<BlockConfig>({
@@ -59,171 +62,112 @@ const block4 = ref<BlockConfig>({
     y: 350,
     width: 120,
     height: 60,
-    text: 'Branch',
+    text: "Branch",
     opacity: 0,
     scaleX: 0.5,
-    scaleY: 0.5
+    scaleY: 0.5,
+});
+
+const connection1Config = ref({
+    strokeWidth: 1,
+    stroke: "blue",
+    opacity: 0,
+    pointerLength: 15,
+    pointerWidth: 15,
 });
 
 // Create reactive refs for connections
-const connection1 = ref<ConnectionOptions>({
-    fromShape: { x: 50, y: 100, width: 120, height: 60 },
-    toShape: { x: 250, y: 200, width: 120, height: 60 },
-    fromAnchor: 'right',
-    toAnchor: 'left',
-    connectionType: 'straight',
-    lineType: 'arrow',
-    config: {
-        stroke: 'blue',
-        strokeWidth: 3,
-        opacity: 0,
-        pointerLength: 15,
-        pointerWidth: 15
-    }
+const connection1 = computed<ConnectionOptions>(() => ({
+    fromShape: block1.value,
+    toShape: block2.value,
+    fromAnchor: "right",
+    toAnchor: "left",
+    connectionType: "straight",
+    lineType: "arrow",
+    config: connection1Config.value,
+}));
+
+const connection2Config = ref({
+    stroke: "green",
+    strokeWidth: 3,
+    opacity: 0,
+    pointerLength: 15,
+    pointerWidth: 15,
 });
 
-const connection2 = ref<ConnectionOptions>({
-    fromShape: { x: 250, y: 200, width: 120, height: 60 },
-    toShape: { x: 450, y: 100, width: 120, height: 60 },
-    fromAnchor: 'right',
-    toAnchor: 'left',
-    connectionType: 'curved',
-    lineType: 'arrow',
-    config: {
-        stroke: 'green',
-        strokeWidth: 3,
-        opacity: 0,
-        pointerLength: 15,
-        pointerWidth: 15
-    }
+const connection2 = computed<ConnectionOptions>(() => ({
+    fromShape: block2.value,
+    toShape: block3.value,
+    fromAnchor: "right",
+    toAnchor: "left",
+    connectionType: "curved",
+    lineType: "arrow",
+    config: connection2Config.value,
+}));
+
+const connection3Config = ref({
+    stroke: "red",
+    strokeWidth: 3,
+    opacity: 0,
+    pointerLength: 15,
+    pointerWidth: 15,
 });
 
-const connection3 = ref<ConnectionOptions>({
-    fromShape: { x: 250, y: 200, width: 120, height: 60 },
-    toShape: { x: 150, y: 350, width: 120, height: 60 },
-    fromAnchor: 'bottom',
-    toAnchor: 'top',
-    connectionType: 'orthogonal',
-    lineType: 'arrow',
-    config: {
-        stroke: 'red',
-        strokeWidth: 3,
-        opacity: 0,
-        pointerLength: 15,
-        pointerWidth: 15
-    }
-});
+const connection3 = computed<ConnectionOptions>(() => ({
+    fromShape: block2.value,
+    toShape: block4.value,
+    fromAnchor: "bottom",
+    toAnchor: "top",
+    connectionType: "orthogonal",
+    lineType: "arrow",
+    config: connection3Config.value,
+}));
 
 // Animation sequence demonstrating block connections
 function* blockConnectionSequence() {
     // Step 1: Introduce first block
     yield step(
         scaleTo(block1, 1, { duration: 800, easing: EasingPresets.backOut }),
-        fadeTo(block1, 1, { duration: 600 })
+        fadeTo(block1, 1, { duration: 600 }),
     );
 
     // Step 2: Show connection and second block
     yield step(
-        fadeTo(connection1, 1, { duration: 600 }),
+        animate(connection1Config, { opacity: 1 }, { duration: 600 }),
         scaleTo(block2, 1, { duration: 800, easing: EasingPresets.backOut }),
-        fadeTo(block2, 1, { duration: 600 })
+        animate(block2, { opacity: 1 }, { duration: 600 }),
     );
 
     // Step 3: Show curved connection to third block
     yield step(
-        fadeTo(connection2, 1, { duration: 600 }),
+        animate(connection2Config, { opacity: 1 }, { duration: 600 }),
         scaleTo(block3, 1, { duration: 800, easing: EasingPresets.backOut }),
-        fadeTo(block3, 1, { duration: 600 })
+        fadeTo(block3, 1, { duration: 600 }),
     );
 
     // Step 4: Show branch connection
     yield step(
-        fadeTo(connection3, 1, { duration: 600 }),
+        animate(connection3Config, { opacity: 1 }, { duration: 600 }),
         scaleTo(block4, 1, { duration: 800, easing: EasingPresets.backOut }),
-        fadeTo(block4, 1, { duration: 600 })
+        fadeTo(block4, 1, { duration: 600 }),
     );
 
-    // Step 5: Animate the flow - highlight connections in sequence
-    yield animate(connection1, {
-        config: { ...connection1.value.config, strokeWidth: 6, stroke: 'orange' }
-    }, { duration: 500 });
-
-    yield animate(connection2, {
-        config: { ...connection2.value.config, strokeWidth: 6, stroke: 'orange' }
-    }, { duration: 500 });
-
-    // Step 6: Show the branch path
-    yield animate(connection3, {
-        config: { ...connection3.value.config, strokeWidth: 6, stroke: 'orange' }
-    }, { duration: 500 });
-
-    // Step 7: Rearrange blocks to show dynamic connections
+    // Step 5: Rearrange blocks to show dynamic connections
     yield step(
-        moveTo(block2, 300, 250, { duration: 1000, easing: EasingPresets.easeInOut }),
-        moveTo(block4, 100, 300, { duration: 1000, easing: EasingPresets.easeInOut })
-    );
-
-    // Step 8: Reset connection colors
-    yield step(
-        animate(connection1, {
-            config: { ...connection1.value.config, strokeWidth: 3, stroke: 'blue' }
-        }, { duration: 400 }),
-        animate(connection2, {
-            config: { ...connection2.value.config, strokeWidth: 3, stroke: 'green' }
-        }, { duration: 400 }),
-        animate(connection3, {
-            config: { ...connection3.value.config, strokeWidth: 3, stroke: 'red' }
-        }, { duration: 400 })
+        moveTo(block2, 300, 250, {
+            duration: 1000,
+            easing: EasingPresets.easeInOut,
+        }),
+        moveTo(block4, 100, 400, {
+            duration: 1000,
+            easing: EasingPresets.easeInOut,
+        }),
+        rotateTo(block3, 45, {
+            duration: 800,
+            easing: EasingPresets.easeInOut,
+        }),
     );
 }
-
-// Update connection coordinates when blocks move
-function updateConnections() {
-    // Update connection1 coordinates
-    connection1.value.fromShape = {
-        x: block1.value.x || 50,
-        y: block1.value.y || 100,
-        width: block1.value.width || 120,
-        height: block1.value.height || 60
-    };
-    connection1.value.toShape = {
-        x: block2.value.x || 250,
-        y: block2.value.y || 200,
-        width: block2.value.width || 120,
-        height: block2.value.height || 60
-    };
-
-    // Update connection2 coordinates
-    connection2.value.fromShape = {
-        x: block2.value.x || 250,
-        y: block2.value.y || 200,
-        width: block2.value.width || 120,
-        height: block2.value.height || 60
-    };
-    connection2.value.toShape = {
-        x: block3.value.x || 450,
-        y: block3.value.y || 100,
-        width: block3.value.width || 120,
-        height: block3.value.height || 60
-    };
-
-    // Update connection3 coordinates
-    connection3.value.fromShape = {
-        x: block2.value.x || 250,
-        y: block2.value.y || 200,
-        width: block2.value.width || 120,
-        height: block2.value.height || 60
-    };
-    connection3.value.toShape = {
-        x: block4.value.x || 150,
-        y: block4.value.y || 350,
-        width: block4.value.width || 120,
-        height: block4.value.height || 60
-    };
-}
-
-// Watch for block position changes and update connections
-watch([block1, block2, block3, block4], updateConnections, { deep: true });
 </script>
 
 <template>

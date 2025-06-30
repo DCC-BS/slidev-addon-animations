@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RectConfig } from "konva/lib/shapes/Rect";
 import type { TextConfig } from "konva/lib/shapes/Text";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 
 export interface BlockConfig {
     x?: number;
@@ -12,6 +12,10 @@ export interface BlockConfig {
     scaleX?: number;
     scaleY?: number;
     opacity?: number;
+    rotation?: number;
+    offsetX?: number;
+    offsetY?: number;
+    offset?: { x: number; y: number };
     rectConfig?: Partial<RectConfig>;
     textConfig?: Partial<TextConfig>;
 }
@@ -26,10 +30,12 @@ const config = computed(() => {
     return {
         ...props,
         ...props.config,
+        offsetX: props.offsetX ?? props.config.offsetX,
+        offsetY: props.offsetY ?? props.config.offsetY,
     };
 });
 
-const rectConfg = computed(() => {
+const rectConfig = computed(() => {
     return {
         width: config.value.width,
         height: config.value.height,
@@ -39,6 +45,10 @@ const rectConfg = computed(() => {
         scaleX: config.value.scaleX ?? 1,
         scaleY: config.value.scaleY ?? 1,
         opacity: config.value.opacity ?? 1,
+        rotation: config.value.rotation ?? 0,
+        offsetX: config.value.offsetX,
+        offsetY: config.value.offsetY,
+        offset: config.value.offset,
         ...config.value.rectConfig,
     };
 });
@@ -55,6 +65,10 @@ const textConfig = computed(() => {
         scaleX: config.value.scaleX ?? 1,
         scaleY: config.value.scaleY ?? 1,
         opacity: config.value.opacity ?? 1,
+        rotation: config.value.rotation ?? 0,
+        offsetX: config.value.offsetX,
+        offsetY: config.value.offsetY,
+        offset: config.value.offset,
         ...config.value.textConfig,
     };
 });
@@ -62,7 +76,7 @@ const textConfig = computed(() => {
 
 <template>
     <v-group :x="config.x" :y="config.y">
-        <v-rect :config="rectConfg" />
+        <v-rect :config="rectConfig" />
         <v-text :config="textConfig" />
     </v-group>
 </template>

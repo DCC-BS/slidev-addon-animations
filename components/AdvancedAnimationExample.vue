@@ -2,23 +2,23 @@
 import { ref } from "vue";
 import {
     animate,
-    step,
+    EasingPresets,
+    fadeTo,
     moveTo,
     scaleTo,
-    fadeTo,
-    EasingPresets
+    step,
 } from "../composables/useGeneratorAnimation";
-import Animator from './Animator.vue';
+import Animator from "./Animator.vue";
 
 // Animation objects
 const title = ref({
     x: 300,
     y: 50,
-    text: 'Advanced Animation Features',
+    text: "Advanced Animation Features",
     fontSize: 20,
     opacity: 0,
     scaleX: 0.5,
-    scaleY: 0.5
+    scaleY: 0.5,
 });
 
 const morphingShape = ref({
@@ -26,24 +26,24 @@ const morphingShape = ref({
     y: 150,
     width: 60,
     height: 60,
-    fill: 'red',
+    fill: "red",
     rotation: 0,
-    cornerRadius: 0
+    cornerRadius: 0,
 });
 
 const bouncingBall = ref({
     x: 300,
     y: 200,
     radius: 25,
-    fill: 'blue',
+    fill: "blue",
     scaleX: 1,
-    scaleY: 1
+    scaleY: 1,
 });
 
 const fadingElements = [
-    ref({ x: 450, y: 120, width: 40, height: 40, fill: 'green', opacity: 0 }),
-    ref({ x: 500, y: 120, width: 40, height: 40, fill: 'orange', opacity: 0 }),
-    ref({ x: 550, y: 120, width: 40, height: 40, fill: 'purple', opacity: 0 })
+    ref({ x: 450, y: 120, width: 40, height: 40, fill: "green", opacity: 0 }),
+    ref({ x: 500, y: 120, width: 40, height: 40, fill: "orange", opacity: 0 }),
+    ref({ x: 550, y: 120, width: 40, height: 40, fill: "purple", opacity: 0 }),
 ];
 
 // Complex animation showcasing different techniques
@@ -51,40 +51,57 @@ function* advancedAnimations() {
     // Step 1: Dramatic title entrance
     yield step(
         scaleTo(title, 1, { duration: 1000, easing: EasingPresets.backOut }),
-        fadeTo(title, 1, { duration: 800 })
+        fadeTo(title, 1, { duration: 800 }),
     );
 
     // Step 2: Shape morphing - rectangle to rounded rectangle to circle
-    yield animate(morphingShape, {
-        cornerRadius: 30,
-        fill: 'orange'
-    }, { duration: 800, easing: EasingPresets.easeInOut });
+    yield animate(
+        morphingShape,
+        {
+            cornerRadius: 30,
+            fill: "orange",
+        },
+        { duration: 800, easing: EasingPresets.easeInOut },
+    );
 
     // Step 3: Continue morphing while rotating
     yield step(
-        animate(morphingShape, {
-            width: 80,
-            height: 80,
-            cornerRadius: 40,
-            fill: 'green'
-        }, { duration: 1000, easing: EasingPresets.elasticOut }),
-        animate(morphingShape, { rotation: Math.PI }, { duration: 1200 })
+        animate(
+            morphingShape,
+            {
+                width: 80,
+                height: 80,
+                cornerRadius: 40,
+                fill: "green",
+            },
+            { duration: 1000, easing: EasingPresets.elasticOut },
+        ),
+        animate(morphingShape, { rotation: Math.PI }, { duration: 1200 }),
     );
 
     // Step 4: Bouncing ball with squash and stretch
     yield step(
-        moveTo(bouncingBall, 300, 300, { duration: 400, easing: EasingPresets.easeIn }),
-        scaleTo(bouncingBall, { x: 1.3, y: 0.7 }, { duration: 400 })
+        moveTo(bouncingBall, 300, 300, {
+            duration: 400,
+            easing: EasingPresets.easeIn,
+        }),
+        scaleTo(bouncingBall, { x: 1.3, y: 0.7 }, { duration: 400 }),
     );
 
     // Ball bounces back up with stretch
     yield step(
-        moveTo(bouncingBall, 300, 150, { duration: 600, easing: EasingPresets.bounceOut }),
-        scaleTo(bouncingBall, { x: 0.8, y: 1.2 }, { duration: 300 })
+        moveTo(bouncingBall, 300, 150, {
+            duration: 600,
+            easing: EasingPresets.bounceOut,
+        }),
+        scaleTo(bouncingBall, { x: 0.8, y: 1.2 }, { duration: 300 }),
     );
 
     // Ball settles
-    yield scaleTo(bouncingBall, 1, { duration: 400, easing: EasingPresets.easeOut });
+    yield scaleTo(bouncingBall, 1, {
+        duration: 400,
+        easing: EasingPresets.easeOut,
+    });
 
     // Step 5: Sequential fade-in of elements (staggered animation)
     yield fadeTo(fadingElements[0], 1, { duration: 400 });
@@ -95,40 +112,58 @@ function* advancedAnimations() {
 
     // Step 6: Synchronized complex movement
     yield step(
-        moveTo(morphingShape, 200, 250, { duration: 1000, easing: EasingPresets.easeInOut }),
-        moveTo(bouncingBall, 400, 250, { duration: 1000, easing: EasingPresets.easeInOut }),
+        moveTo(morphingShape, 200, 250, {
+            duration: 1000,
+            easing: EasingPresets.easeInOut,
+        }),
+        moveTo(bouncingBall, 400, 250, {
+            duration: 1000,
+            easing: EasingPresets.easeInOut,
+        }),
         ...fadingElements.map((el, i) =>
             moveTo(el, 300 + (i - 1) * 50, 300, {
                 duration: 1000,
                 delay: i * 100,
-                easing: EasingPresets.backOut
-            })
-        )
+                easing: EasingPresets.backOut,
+            }),
+        ),
     );
 
     // Step 7: Grand finale - everything spins and scales
     yield step(
-        animate(morphingShape, {
-            rotation: Math.PI * 2,
-            scaleX: 1.5,
-            scaleY: 1.5
-        }, { duration: 1500, easing: EasingPresets.easeInOut }),
-        animate(bouncingBall, {
-            scaleX: 2,
-            scaleY: 2,
-            fill: 'gold'
-        }, { duration: 1500, easing: EasingPresets.elasticOut }),
-        ...fadingElements.map((el, i) =>
-            animate(el, {
+        animate(
+            morphingShape,
+            {
                 rotation: Math.PI * 2,
-                scaleX: 1.2,
-                scaleY: 1.2
-            }, {
-                duration: 1500,
-                delay: i * 150,
-                easing: EasingPresets.bounceOut
-            })
-        )
+                scaleX: 1.5,
+                scaleY: 1.5,
+            },
+            { duration: 1500, easing: EasingPresets.easeInOut },
+        ),
+        animate(
+            bouncingBall,
+            {
+                scaleX: 2,
+                scaleY: 2,
+                fill: "gold",
+            },
+            { duration: 1500, easing: EasingPresets.elasticOut },
+        ),
+        ...fadingElements.map((el, i) =>
+            animate(
+                el,
+                {
+                    rotation: Math.PI * 2,
+                    scaleX: 1.2,
+                    scaleY: 1.2,
+                },
+                {
+                    duration: 1500,
+                    delay: i * 150,
+                    easing: EasingPresets.bounceOut,
+                },
+            ),
+        ),
     );
 }
 </script>
