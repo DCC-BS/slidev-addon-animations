@@ -79,7 +79,7 @@ function* animationSequence() {
         <h3 class="text-xl font-bold mb-4">Animation System Demo</h3>
 
         <!-- Animator component manages the step-by-step animations -->
-        <Animator :generator="() => animationSequence()">
+        <Animator :generator="animationSequence">
             <template #default="{ currentStep, totalSteps, isAnimating }">
                 <div class="mb-4 text-sm">
                     Step {{ currentStep }} of {{ totalSteps }}
