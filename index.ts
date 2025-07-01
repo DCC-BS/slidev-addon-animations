@@ -43,3 +43,6 @@ export {
     registerLerp,
     stringLerp,
 } from "./utils/lerpSystem.js";
+
+
+export * from "./composables/useGeneratorAnimation.js";

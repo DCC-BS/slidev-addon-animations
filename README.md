@@ -1,7 +1,5 @@
 # Slidev Addon Animations
 
-[![NPM version](https://img.shields.io/npm/v/slidev-addon-animations?color=3AB9D4&label=)](https://www.npmjs.com/package/slidev-addon-animations) [![Checked with Biome](https://img.shields.io/badge/Checked_with-Biome-60a5fa?style=flat&logo=biome)](https://biomejs.dev)
-
 A powerful animation addon for [Slidev](https://github.com/slidevjs/slidev) presentations using Konva.js. Create stunning step-by-step animations, interactive diagrams, and dynamic visual content synchronized with your slide navigation.
 
 ## Features
@@ -31,7 +29,11 @@ A powerful animation addon for [Slidev](https://github.com/slidevjs/slidev) pres
 Install the addon in your Slidev project:
 
 ```bash
-npm install slidev-addon-animations konva vue-konva
+# Using npm
+npm install git+https://github.com/DCC-BS/slidev-addon-animations.git 
+
+# Using bun
+bun add git+https://github.com/DCC-BS/slidev-addon-animations.git 
 ```
 
 ### Add to Slidev Configuration
@@ -51,7 +53,7 @@ addons:
 ### Basic Animation Example
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { animate, step, moveTo, scaleTo, EasingPresets } from 'slidev-addon-animations'
 import { Animator } from 'slidev-addon-animations/components'
 
@@ -71,12 +73,12 @@ function* myAnimation() {
 
 <template>
   <Animator :generator="myAnimation">
-    <v-stage :width="400" :height="300">
-      <v-layer>
-        <v-circle :config="circle" />
-      </v-layer>
-    </v-stage>
   </Animator>
+  <v-stage :width="400" :height="300">
+    <v-layer>
+      <v-circle :config="circle" />
+    </v-layer>
+  </v-stage>
 </template>
 ```
 
@@ -116,10 +118,14 @@ const connection = computed(() => ({
 
 ### Setup Development Environment
 
-Make sure to install dependencies using Bun:
+Make sure to install dependencies:
 
 ```bash
+# Using bun (recommended)
 bun install
+
+# Using npm
+npm install
 ```
 
 ### Start Development Server
@@ -127,7 +133,11 @@ bun install
 Preview the example slides with hot reload:
 
 ```bash
+# Using bun (recommended)
 bun run dev
+
+# Using npm
+npm run dev
 ```
 
 This will start Slidev with the `example.md` presentation showcasing all features.
@@ -137,19 +147,31 @@ This will start Slidev with the `example.md` presentation showcasing all feature
 Build presentation for production:
 
 ```bash
+# Using bun
 bun run build
+
+# Using npm
+npm run build
 ```
 
 Export as PDF:
 
 ```bash
+# Using bun
 bun run export
+
+# Using npm
+npm run export
 ```
 
 Generate screenshot preview:
 
 ```bash
+# Using bun
 bun run screenshot
+
+# Using npm
+npm run screenshot
 ```
 
 ## Testing & Quality Assurance
@@ -158,29 +180,29 @@ Run comprehensive test suite:
 
 ```bash
 # Run all tests
-bun test
+bun test        # or: npm test
 
 # Run tests with UI
-bun test:ui
+bun test:ui     # or: npm run test:ui
 
 # Run tests in watch mode
-bun test:watch
+bun test:watch  # or: npm run test:watch
 
 # Generate coverage report
-bun test:coverage
+bun test:coverage  # or: npm run test:coverage
 
 # Run specific test examples
-bun test:examples
+bun test:examples  # or: npm run test:examples
 ```
 
 Check code quality with Biome:
 
 ```bash
 # Lint and format
-bun run lint
+bun run lint    # or: npm run lint
 
 # Check for issues
-bun run check
+bun run check   # or: npm run check
 ```
 
 ## API Reference
@@ -318,10 +340,10 @@ yield animate(connectionOpacity, { value: 1 }, { duration: 600 })
 ## Contributing
 
 1. **Fork and clone** the repository
-2. **Install dependencies**: `bun install`
-3. **Start development**: `bun run dev`
-4. **Run tests**: `bun test`
-5. **Check code quality**: `bun run check`
+2. **Install dependencies**: `bun install` or `npm install`
+3. **Start development**: `bun run dev` or `npm run dev`
+4. **Run tests**: `bun test` or `npm test`
+5. **Check code quality**: `bun run check` or `npm run check`
 6. **Submit pull request** with your improvements
 
 ### Development Guidelines
