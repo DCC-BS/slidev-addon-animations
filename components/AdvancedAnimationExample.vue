@@ -95,7 +95,11 @@ function* advancedAnimations() {
             easing: EasingPresets.bounceOut,
         }),
         scaleTo(bouncingBall, { x: 0.8, y: 1.2 }, { duration: 300 }),
-        scaleTo(bouncingBall, 1, { duration: 400, delay: 300, easing: EasingPresets.easeOut }),
+        scaleTo(bouncingBall, 1, {
+            duration: 400,
+            delay: 300,
+            easing: EasingPresets.easeOut,
+        }),
     );
 
     // Step 5: Sequential fade-in of elements (staggered animation)

@@ -38,87 +38,83 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 import {
-  useKonvaAnimation,
-  createAnimationTarget,
-  createAnimationStep,
+    createAnimationStep,
+    createAnimationTarget,
+    useKonvaAnimation,
 } from "../index";
 
 // Reactive objects for animation
 const colorBox = reactive({
-  backgroundColor: "#ff0000", // Start with red
-  borderColor: "rgb(255, 0, 0)",
-  textColor: "#ffffff",
+    backgroundColor: "#ff0000", // Start with red
+    borderColor: "rgb(255, 0, 0)",
+    textColor: "#ffffff",
 });
 
 const positionBox = reactive({
-  x: 0,
-  y: 0,
-  scale: 1,
-  opacity: 1,
+    x: 0,
+    y: 0,
+    scale: 1,
+    opacity: 1,
 });
 
 // Create animation targets with color and numeric values
 const targets = [
-  // Color animations
-  createAnimationTarget(
-    colorBox,
-    {
-      backgroundColor: "#ff0000", // Red
-      borderColor: "rgb(255, 0, 0)",
-      textColor: "#ffffff",
-    },
-    [
-      createAnimationStep(
+    // Color animations
+    createAnimationTarget(
+        colorBox,
         {
-          backgroundColor: "#00ff00", // Green
-          borderColor: "rgb(0, 255, 0)",
-          textColor: "#000000",
+            backgroundColor: "#ff0000", // Red
+            borderColor: "rgb(255, 0, 0)",
+            textColor: "#ffffff",
         },
-        { duration: 1000 }
-      ),
-      createAnimationStep(
-        {
-          backgroundColor: "#0000ff", // Blue
-          borderColor: "rgb(0, 0, 255)",
-          textColor: "#ffffff",
-        },
-        { duration: 800 }
-      ),
-      createAnimationStep(
-        {
-          backgroundColor: "#ffff00", // Yellow
-          borderColor: "rgb(255, 255, 0)",
-          textColor: "#000000",
-        },
-        { duration: 600 }
-      ),
-    ]
-  ),
-  
-  // Numeric animations
-  createAnimationTarget(
-    positionBox,
-    { x: 0, y: 0, scale: 1, opacity: 1 },
-    [
-      createAnimationStep(
-        { x: 100, y: 50, scale: 1.2, opacity: 0.8 },
-        { duration: 1000 }
-      ),
-      createAnimationStep(
-        { x: 200, y: 0, scale: 0.8, opacity: 0.6 },
-        { duration: 800 }
-      ),
-      createAnimationStep(
-        { x: 300, y: 100, scale: 1.5, opacity: 1 },
-        { duration: 600 }
-      ),
-    ]
-  ),
+        [
+            createAnimationStep(
+                {
+                    backgroundColor: "#00ff00", // Green
+                    borderColor: "rgb(0, 255, 0)",
+                    textColor: "#000000",
+                },
+                { duration: 1000 },
+            ),
+            createAnimationStep(
+                {
+                    backgroundColor: "#0000ff", // Blue
+                    borderColor: "rgb(0, 0, 255)",
+                    textColor: "#ffffff",
+                },
+                { duration: 800 },
+            ),
+            createAnimationStep(
+                {
+                    backgroundColor: "#ffff00", // Yellow
+                    borderColor: "rgb(255, 255, 0)",
+                    textColor: "#000000",
+                },
+                { duration: 600 },
+            ),
+        ],
+    ),
+
+    // Numeric animations
+    createAnimationTarget(positionBox, { x: 0, y: 0, scale: 1, opacity: 1 }, [
+        createAnimationStep(
+            { x: 100, y: 50, scale: 1.2, opacity: 0.8 },
+            { duration: 1000 },
+        ),
+        createAnimationStep(
+            { x: 200, y: 0, scale: 0.8, opacity: 0.6 },
+            { duration: 800 },
+        ),
+        createAnimationStep(
+            { x: 300, y: 100, scale: 1.5, opacity: 1 },
+            { duration: 600 },
+        ),
+    ]),
 ];
 
 // Initialize animation system
 useKonvaAnimation(targets, {
-  defaultDuration: 800,
+    defaultDuration: 800,
 });
 </script>
 

@@ -14,10 +14,18 @@ export interface Color {
 }
 
 // Lerp function type
-export type LerpFunction<T = AnimatableValue> = (start: T, end: T, progress: number) => T;
+export type LerpFunction<T = AnimatableValue> = (
+    start: T,
+    end: T,
+    progress: number,
+) => T;
 
 // Generic lerp function type for the registry
-export type GenericLerpFunction = (start: AnimatableValue, end: AnimatableValue, progress: number) => AnimatableValue;
+export type GenericLerpFunction = (
+    start: AnimatableValue,
+    end: AnimatableValue,
+    progress: number,
+) => AnimatableValue;
 
 // Lerp registry for different types
 export const lerpRegistry = new Map<string, GenericLerpFunction>();
@@ -25,21 +33,30 @@ export const lerpRegistry = new Map<string, GenericLerpFunction>();
 /**
  * Number lerp implementation
  */
-export const numberLerp: LerpFunction<number> = (start: number, end: number, progress: number): number => {
+export const numberLerp: LerpFunction<number> = (
+    start: number,
+    end: number,
+    progress: number,
+): number => {
     return start + (end - start) * progress;
 };
 
 /**
  * Color lerp implementation
  */
-export const colorLerp: LerpFunction<Color> = (start: Color, end: Color, progress: number): Color => {
+export const colorLerp: LerpFunction<Color> = (
+    start: Color,
+    end: Color,
+    progress: number,
+): Color => {
     return {
         r: Math.round(start.r + (end.r - start.r) * progress),
         g: Math.round(start.g + (end.g - start.g) * progress),
         b: Math.round(start.b + (end.b - start.b) * progress),
-        a: start.a !== undefined && end.a !== undefined 
-            ? start.a + (end.a - start.a) * progress
-            : start.a ?? end.a ?? 1,
+        a:
+            start.a !== undefined && end.a !== undefined
+                ? start.a + (end.a - start.a) * progress
+                : (start.a ?? end.a ?? 1),
     };
 };
 
@@ -48,21 +65,36 @@ export const colorLerp: LerpFunction<Color> = (start: Color, end: Color, progres
  */
 export function isColorString(str: string): boolean {
     // Check for hex colors
-    if (str.startsWith('#') && /^#[0-9a-fA-F]{3,8}$/.test(str)) {
+    if (str.startsWith("#") && /^#[0-9a-fA-F]{3,8}$/.test(str)) {
         return true;
     }
-    
+
     // Check for rgb/rgba functions
     if (/^rgba?\s*\([^)]+\)$/.test(str)) {
         return true;
     }
-    
+
     // Check for named colors
-    const namedColors = ['red', 'green', 'blue', 'white', 'black', 'transparent', 'yellow', 'cyan', 'magenta', 'orange', 'purple', 'pink', 'gray', 'grey'];
+    const namedColors = [
+        "red",
+        "green",
+        "blue",
+        "white",
+        "black",
+        "transparent",
+        "yellow",
+        "cyan",
+        "magenta",
+        "orange",
+        "purple",
+        "pink",
+        "gray",
+        "grey",
+    ];
     if (namedColors.includes(str.toLowerCase())) {
         return true;
     }
-    
+
     return false;
 }
 
@@ -72,7 +104,7 @@ export function isColorString(str: string): boolean {
  */
 export function parseColor(colorStr: string): Color {
     // Handle hex colors
-    if (colorStr.startsWith('#')) {
+    if (colorStr.startsWith("#")) {
         const hex = colorStr.slice(1);
         if (hex.length === 3 && /^[0-9a-fA-F]{3}$/.test(hex)) {
             return {
@@ -98,22 +130,25 @@ export function parseColor(colorStr: string): Color {
         }
         throw new Error(`Invalid hex color: ${colorStr}`);
     }
-    
+
     // Handle rgb() and rgba()
     const rgbMatch = colorStr.match(/rgba?\(([^)]+)\)/);
     if (rgbMatch) {
-        const values = rgbMatch[1].split(',').map(v => parseFloat(v.trim()));
-        if (values.length < 3 || values.some(v => Number.isNaN(v))) {
+        const values = rgbMatch[1].split(",").map((v) => parseFloat(v.trim()));
+        if (values.length < 3 || values.some((v) => Number.isNaN(v))) {
             throw new Error(`Invalid rgb color: ${colorStr}`);
         }
         return {
             r: Math.max(0, Math.min(255, values[0])),
             g: Math.max(0, Math.min(255, values[1])),
             b: Math.max(0, Math.min(255, values[2])),
-            a: values[3] !== undefined ? Math.max(0, Math.min(1, values[3])) : undefined,
+            a:
+                values[3] !== undefined
+                    ? Math.max(0, Math.min(1, values[3]))
+                    : undefined,
         };
     }
-    
+
     // Handle named colors (expanded set)
     const namedColors: Record<string, Color> = {
         red: { r: 255, g: 0, b: 0 },
@@ -131,12 +166,12 @@ export function parseColor(colorStr: string): Color {
         gray: { r: 128, g: 128, b: 128 },
         grey: { r: 128, g: 128, b: 128 },
     };
-    
+
     const namedColor = namedColors[colorStr.toLowerCase()];
     if (namedColor) {
         return namedColor;
     }
-    
+
     throw new Error(`Unrecognized color: ${colorStr}`);
 }
 
@@ -153,7 +188,11 @@ export function colorToString(color: Color): string {
 /**
  * String lerp implementation (for colors and other CSS values)
  */
-export const stringLerp: LerpFunction<string> = (start: string, end: string, progress: number): string => {
+export const stringLerp: LerpFunction<string> = (
+    start: string,
+    end: string,
+    progress: number,
+): string => {
     // Only try to parse as colors if both strings look like colors
     if (isColorString(start) && isColorString(end)) {
         try {
@@ -166,7 +205,7 @@ export const stringLerp: LerpFunction<string> = (start: string, end: string, pro
             return progress < 0.5 ? start : end;
         }
     }
-    
+
     // For non-color strings, return the start or end value based on progress
     return progress < 0.5 ? start : end;
 };
@@ -175,16 +214,16 @@ export const stringLerp: LerpFunction<string> = (start: string, end: string, pro
  * Determine the type of a value and return the appropriate lerp function
  */
 export function getLerpFunction(value: AnimatableValue): GenericLerpFunction {
-    if (typeof value === 'number') {
+    if (typeof value === "number") {
         return numberLerp as GenericLerpFunction;
     }
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
         return stringLerp as GenericLerpFunction;
     }
-    if (typeof value === 'object' && value !== null && 'r' in value) {
+    if (typeof value === "object" && value !== null && "r" in value) {
         return colorLerp as GenericLerpFunction;
     }
-    
+
     // Fallback to number lerp
     return numberLerp as GenericLerpFunction;
 }
@@ -192,26 +231,35 @@ export function getLerpFunction(value: AnimatableValue): GenericLerpFunction {
 /**
  * Generic lerp function that automatically determines the type
  */
-export function lerp(start: AnimatableValue, end: AnimatableValue, progress: number): AnimatableValue {
+export function lerp(
+    start: AnimatableValue,
+    end: AnimatableValue,
+    progress: number,
+): AnimatableValue {
     const lerpFn = getLerpFunction(start);
     return lerpFn(start, end, progress);
 }
 
 // Register default lerp functions
-lerpRegistry.set('number', numberLerp as GenericLerpFunction);
-lerpRegistry.set('string', stringLerp as GenericLerpFunction);
-lerpRegistry.set('color', colorLerp as GenericLerpFunction);
+lerpRegistry.set("number", numberLerp as GenericLerpFunction);
+lerpRegistry.set("string", stringLerp as GenericLerpFunction);
+lerpRegistry.set("color", colorLerp as GenericLerpFunction);
 
 /**
  * Register a custom lerp function for a specific type
  */
-export function registerLerp(typeName: string, lerpFn: GenericLerpFunction): void {
+export function registerLerp(
+    typeName: string,
+    lerpFn: GenericLerpFunction,
+): void {
     lerpRegistry.set(typeName, lerpFn);
 }
 
 /**
  * Get a registered lerp function by type name
  */
-export function getLerpByType(typeName: string): GenericLerpFunction | undefined {
+export function getLerpByType(
+    typeName: string,
+): GenericLerpFunction | undefined {
     return lerpRegistry.get(typeName);
 }

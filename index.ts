@@ -9,26 +9,6 @@ export type {
     AnimationTarget,
     EasingFunction,
 } from "./types/animation.js";
-
-// Lerp system types and functions
-export type {
-    AnimatableValue,
-    Color,
-    GenericLerpFunction,
-    LerpFunction,
-} from "./utils/lerpSystem.js";
-
-export {
-    colorLerp,
-    colorToString,
-    getLerpByType,
-    getLerpFunction,
-    lerp,
-    numberLerp,
-    parseColor,
-    registerLerp,
-    stringLerp,
-} from "./utils/lerpSystem.js";
 // Advanced utilities (for custom implementations)
 export {
     applyEasing,
@@ -45,3 +25,21 @@ export {
     createAnimationTarget,
     initializeTargets,
 } from "./utils/animationHelpers.js";
+// Lerp system types and functions
+export type {
+    AnimatableValue,
+    Color,
+    GenericLerpFunction,
+    LerpFunction,
+} from "./utils/lerpSystem.js";
+export {
+    colorLerp,
+    colorToString,
+    getLerpByType,
+    getLerpFunction,
+    lerp,
+    numberLerp,
+    parseColor,
+    registerLerp,
+    stringLerp,
+} from "./utils/lerpSystem.js";

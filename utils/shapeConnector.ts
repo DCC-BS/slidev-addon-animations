@@ -56,10 +56,10 @@ function rotatePoint(
     const angleInRadians = (angleInDegrees * Math.PI) / 180;
     const cos = Math.cos(angleInRadians);
     const sin = Math.sin(angleInRadians);
-    
+
     const dx = point.x - center.x;
     const dy = point.y - center.y;
-    
+
     return {
         x: center.x + (dx * cos - dy * sin),
         y: center.y + (dx * sin + dy * cos),
@@ -78,8 +78,8 @@ function rotatePoint(
  *
  * Example:
  * ```typescript
- * const shape = { 
- *   x: 100, y: 100, width: 200, height: 100, 
+ * const shape = {
+ *   x: 100, y: 100, width: 200, height: 100,
  *   scaleX: 1.5, scaleY: 2, rotation: 45,
  *   offset: { x: 100, y: 50 }  // Shape draws from (0, 50) but rotates around (100, 100)
  * };
@@ -90,7 +90,18 @@ export function getAnchorPoint(
     shape: Shape,
     anchor: AnchorPoint,
 ): { x: number; y: number } {
-    let { x, y, width, height, scaleX = 1, scaleY = 1, rotation = 0, offsetX = 0, offsetY = 0, offset } = shape;
+    let {
+        x,
+        y,
+        width,
+        height,
+        scaleX = 1,
+        scaleY = 1,
+        rotation = 0,
+        offsetX = 0,
+        offsetY = 0,
+        offset,
+    } = shape;
 
     // Validate shape dimensions
     x ??= 0;
@@ -186,18 +197,18 @@ function getCurvedPoints(
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    
+
     // Use a proportional curve strength
     const baseOffset = Math.min(distance * 0.35, 80);
-    const minOffset = 25; 
+    const minOffset = 25;
     const controlOffset = Math.max(baseOffset, minOffset);
-    
+
     // Create two control points for a cubic Bézier curve
     let fromControlX = from.x;
     let fromControlY = from.y;
     let toControlX = to.x;
     let toControlY = to.y;
-    
+
     // First control point - extends perpendicular from the "from" anchor
     switch (fromAnchor) {
         case "left":
@@ -223,7 +234,7 @@ function getCurvedPoints(
             break;
         }
     }
-    
+
     // Second control point - extends perpendicular from the "to" anchor
     // Use the same direction as the anchor to avoid overshooting
     switch (toAnchor) {
@@ -252,7 +263,16 @@ function getCurvedPoints(
     }
 
     // Return cubic Bézier curve points: start, control1, control2, end
-    return [from.x, from.y, fromControlX, fromControlY, toControlX, toControlY, to.x, to.y];
+    return [
+        from.x,
+        from.y,
+        fromControlX,
+        fromControlY,
+        toControlX,
+        toControlY,
+        to.x,
+        to.y,
+    ];
 }
 
 /**
@@ -382,16 +402,14 @@ export function createConnection(
  * Update an existing connection when shapes move
  */
 export function updateConnection(
-    connection: { points: (points: number[]) => void; tension?: (tension: number) => void },
+    connection: {
+        points: (points: number[]) => void;
+        tension?: (tension: number) => void;
+    },
     options: ConnectionOptions,
 ): void {
-    const {
-        fromShape,
-        toShape,
-        fromAnchor,
-        toAnchor,
-        connectionType,
-    } = options;
+    const { fromShape, toShape, fromAnchor, toAnchor, connectionType } =
+        options;
 
     const fromPoint = getAnchorPoint(fromShape, fromAnchor);
     const toPoint = getAnchorPoint(toShape, toAnchor);

@@ -1,14 +1,14 @@
 import Konva from "konva";
-import {
-    createAnimationStep,
-    createAnimationTarget,
-    useKonvaAnimation,
-    type AnimatableObject,
-    type EasingFunction,
-} from "./useKonvaAnimation";
+import type { ShapeConfig } from "konva/lib/Shape";
 import type { Ref } from "vue";
 import { unref } from "vue";
-import type { ShapeConfig } from "konva/lib/Shape";
+import {
+    type AnimatableObject,
+    createAnimationStep,
+    createAnimationTarget,
+    type EasingFunction,
+    useKonvaAnimation,
+} from "./useKonvaAnimation";
 
 // Animation properties with better defaults
 export interface AnimationProps {
@@ -57,7 +57,7 @@ export function animate(
 ): AnimationInstruction {
     // Unpack ref if target is a ref, otherwise use target directly
     const actualTarget = unref(target);
-    
+
     return {
         type: "animate",
         target: actualTarget,
@@ -304,20 +304,30 @@ export function useGeneratorAnimation(
                     // Merge all properties from animations targeting this object
                     const mergedProperties: Record<string, unknown> = {};
                     let duration = defaultDuration;
-                    let delay: number | undefined = undefined; // Initialize as undefined
+                    let delay: number | undefined; // Initialize as undefined
                     let easing = defaultEasing;
 
                     // Process each animation and merge properties
                     for (const targetAnimation of targetAnimations) {
-                        Object.assign(mergedProperties, targetAnimation.properties);
-                        
+                        Object.assign(
+                            mergedProperties,
+                            targetAnimation.properties,
+                        );
+
                         // Use the maximum duration among all animations for this target
-                        duration = Math.max(duration, targetAnimation.options?.duration || defaultDuration);
-                        
+                        duration = Math.max(
+                            duration,
+                            targetAnimation.options?.duration ||
+                                defaultDuration,
+                        );
+
                         // Use the minimum delay (earliest start time), but handle undefined properly
                         const animDelay = targetAnimation.options?.delay ?? 0;
-                        delay = delay === undefined ? animDelay : Math.min(delay, animDelay);
-                        
+                        delay =
+                            delay === undefined
+                                ? animDelay
+                                : Math.min(delay, animDelay);
+
                         // Use the last specified easing (could be improved with priority system)
                         if (targetAnimation.options?.easing) {
                             easing = targetAnimation.options.easing;
@@ -332,11 +342,14 @@ export function useGeneratorAnimation(
                                   ? EasingPresets[defaultEasing as EasingPreset]
                                   : defaultEasing);
 
-                    return createAnimationStep(mergedProperties as AnimatableObject, {
-                        duration,
-                        delay: delay ?? 0, // Use 0 as default if delay was never set
-                        easing: resolvedEasing as unknown as EasingFunction,
-                    });
+                    return createAnimationStep(
+                        mergedProperties as AnimatableObject,
+                        {
+                            duration,
+                            delay: delay ?? 0, // Use 0 as default if delay was never set
+                            easing: resolvedEasing as unknown as EasingFunction,
+                        },
+                    );
                 }
                 // No animation for this target in this step
                 return createAnimationStep({}, { duration: 100 });

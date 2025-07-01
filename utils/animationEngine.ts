@@ -4,7 +4,7 @@ import type {
     EasingFunction,
     ProcessedAnimation,
 } from "../types/animation.js";
-import { lerp, type AnimatableValue } from "./lerpSystem.js";
+import { type AnimatableValue, lerp } from "./lerpSystem.js";
 
 /**
  * Processes animation targets into optimized animation objects
@@ -55,7 +55,7 @@ export function prepareReverseAnimations(
     // Calculate target state for the step
     const targetStates = targets.map((target) => {
         const state = { ...target.initialState };
-        
+
         // Apply all steps up to the target step
         for (let i = 0; i <= stepIndex; i++) {
             if (i < target.steps.length) {
