@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RectConfig } from "konva/lib/shapes/Rect";
 import type { TextConfig } from "konva/lib/shapes/Text";
-import { computed, watch } from "vue";
+import { computed } from "vue";
 
 export interface BlockConfig {
     x?: number;

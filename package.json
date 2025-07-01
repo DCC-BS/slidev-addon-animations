@@ -13,7 +13,15 @@
         "build": "slidev build example.md",
         "dev": "slidev example.md --open",
         "export": "slidev export example.md",
-        "screenshot": "slidev export example.md --format png"
+        "screenshot": "slidev export example.md --format png",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:run": "vitest run",
+        "test:coverage": "vitest run --coverage",
+        "test:watch": "vitest --watch",
+        "test:ci": "vitest run --coverage --reporter=junit --outputFile=coverage/junit.xml",
+        "test:debug": "vitest --inspect-brk --no-coverage",
+        "test:examples": "vitest run tests/examples.test.ts"
     },
     "dependencies": {
         "@slidev/theme-default": "^0.25.0",
@@ -24,7 +32,13 @@
     },
     "devDependencies": {
         "@biomejs/biome": "2.0.6",
-        "@slidev/cli": "^51.8.2"
+        "@slidev/cli": "^51.8.2",
+        "@vitest/coverage-v8": "^3.2.4",
+        "@vitest/ui": "^3.2.4",
+        "@vue/test-utils": "^2.4.6",
+        "happy-dom": "^18.0.1",
+        "jsdom": "^26.1.0",
+        "vitest": "^3.2.4"
     },
     "//": "Learn more: https://sli.dev/guide/write-theme.html",
     "slidev": {

@@ -99,7 +99,7 @@ const connection2 = computed<ConnectionOptions>(() => ({
     fromShape: block2.value,
     toShape: block3.value,
     fromAnchor: "right",
-    toAnchor: "left",
+    toAnchor: "bottom",
     connectionType: "curved",
     lineType: "arrow",
     config: connection2Config.value,

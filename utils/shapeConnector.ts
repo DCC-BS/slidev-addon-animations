@@ -70,9 +70,10 @@ function rotatePoint(
  * Get anchor point coordinates for a shape
  *
  * This function supports scaled and rotated shapes following Konva's transformation model:
- * - Scale transformation is applied from the top-left corner of the shape
- * - Rotation is applied around the origin (top-left corner) by default
- * - If offsetX/offsetY or offset.x/offset.y are provided, rotation center is moved by those offset values
+ * - Position (x, y) defines the coordinate system origin
+ * - Offset (offsetX, offsetY) moves the drawing origin but rotation still happens around (x, y)
+ * - Scale is applied from the drawing origin
+ * - Rotation is applied around the position (x, y), not the visual location
  * - offset property takes priority over offsetX/offsetY if both are specified
  *
  * Example:
@@ -80,7 +81,7 @@ function rotatePoint(
  * const shape = { 
  *   x: 100, y: 100, width: 200, height: 100, 
  *   scaleX: 1.5, scaleY: 2, rotation: 45,
- *   offset: { x: 100, y: 50 }  // Rotate around center of scaled shape
+ *   offset: { x: 100, y: 50 }  // Shape draws from (0, 50) but rotates around (100, 100)
  * };
  * const rightAnchor = getAnchorPoint(shape, 'right');
  * ```
@@ -97,43 +98,52 @@ export function getAnchorPoint(
     width ??= 0;
     height ??= 0;
 
+    // Get the final offset values (offset property takes priority)
+    const finalOffsetX = offset?.x ?? offsetX;
+    const finalOffsetY = offset?.y ?? offsetY;
+
+    // In Konva's model:
+    // - The shape visually appears at (x - offsetX, y - offsetY)
+    // - But rotation happens around (x, y)
+    const visualX = x - finalOffsetX;
+    const visualY = y - finalOffsetY;
+
     // Calculate effective dimensions considering scale factors
-    // Scaling happens from the top-left corner, so position stays the same
     const effectiveWidth = width * scaleX;
     const effectiveHeight = height * scaleY;
 
-    // Calculate anchor point without rotation first
+    // Calculate anchor point based on the visual position (before rotation)
     let anchorPoint: { x: number; y: number };
 
     switch (anchor) {
         case "left":
-            anchorPoint = { x: x, y: y + effectiveHeight / 2 };
+            anchorPoint = { x: visualX, y: visualY + effectiveHeight / 2 };
             break;
         case "right":
             anchorPoint = {
-                x: x + effectiveWidth,
-                y: y + effectiveHeight / 2,
+                x: visualX + effectiveWidth,
+                y: visualY + effectiveHeight / 2,
             };
             break;
         case "top":
-            anchorPoint = { x: x + effectiveWidth / 2, y: y };
+            anchorPoint = { x: visualX + effectiveWidth / 2, y: visualY };
             break;
         case "bottom":
             anchorPoint = {
-                x: x + effectiveWidth / 2,
-                y: y + effectiveHeight,
+                x: visualX + effectiveWidth / 2,
+                y: visualY + effectiveHeight,
             };
             break;
         case "center":
             anchorPoint = {
-                x: x + effectiveWidth / 2,
-                y: y + effectiveHeight / 2,
+                x: visualX + effectiveWidth / 2,
+                y: visualY + effectiveHeight / 2,
             };
             break;
         default:
             anchorPoint = {
-                x: x + effectiveWidth / 2,
-                y: y + effectiveHeight / 2,
+                x: visualX + effectiveWidth / 2,
+                y: visualY + effectiveHeight / 2,
             };
     }
 
@@ -142,19 +152,14 @@ export function getAnchorPoint(
         return anchorPoint;
     }
 
-    // Calculate the rotation center based on Konva's model:
-    // - Default rotation center is at the origin (top-left: x, y)  
-    // - If offset.x/offset.y are provided, use those (takes priority)
-    // - Otherwise, if offsetX/offsetY are provided, use those
-    const finalOffsetX = offset?.x ?? offsetX;
-    const finalOffsetY = offset?.y ?? offsetY;
-    
+    // In Konva, rotation happens around the position (x, y), not the visual position
+    // This is the key insight from the Konva documentation
     const rotationCenter = {
-        x: x + finalOffsetX,
-        y: y + finalOffsetY,
+        x: x,
+        y: y,
     };
 
-    // Rotate the anchor point around the rotation center
+    // Rotate the anchor point around the shape's position
     return rotatePoint(anchorPoint, rotationCenter, rotation);
 }
 
@@ -169,21 +174,85 @@ function getStraightPoints(
 }
 
 /**
- * Calculate points for a curved connection
+ * Calculate points for a curved connection that exits perpendicular to shape edges
  */
 function getCurvedPoints(
     from: { x: number; y: number },
     to: { x: number; y: number },
+    fromAnchor: AnchorPoint,
+    toAnchor: AnchorPoint,
 ): number[] {
-    const midX = (from.x + to.x) / 2;
-    const midY = (from.y + to.y) / 2;
+    // Calculate the distance between points
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    // Use a proportional curve strength
+    const baseOffset = Math.min(distance * 0.35, 80);
+    const minOffset = 25; 
+    const controlOffset = Math.max(baseOffset, minOffset);
+    
+    // Create two control points for a cubic Bézier curve
+    let fromControlX = from.x;
+    let fromControlY = from.y;
+    let toControlX = to.x;
+    let toControlY = to.y;
+    
+    // First control point - extends perpendicular from the "from" anchor
+    switch (fromAnchor) {
+        case "left":
+            fromControlX = from.x - controlOffset;
+            fromControlY = from.y;
+            break;
+        case "right":
+            fromControlX = from.x + controlOffset;
+            fromControlY = from.y;
+            break;
+        case "top":
+            fromControlX = from.x;
+            fromControlY = from.y - controlOffset;
+            break;
+        case "bottom":
+            fromControlX = from.x;
+            fromControlY = from.y + controlOffset;
+            break;
+        case "center": {
+            const angle = Math.atan2(dy, dx);
+            fromControlX = from.x + Math.cos(angle) * controlOffset;
+            fromControlY = from.y + Math.sin(angle) * controlOffset;
+            break;
+        }
+    }
+    
+    // Second control point - extends perpendicular from the "to" anchor
+    // Use the same direction as the anchor to avoid overshooting
+    switch (toAnchor) {
+        case "left":
+            toControlX = to.x - controlOffset;
+            toControlY = to.y;
+            break;
+        case "right":
+            toControlX = to.x + controlOffset;
+            toControlY = to.y;
+            break;
+        case "top":
+            toControlX = to.x;
+            toControlY = to.y - controlOffset;
+            break;
+        case "bottom":
+            toControlX = to.x;
+            toControlY = to.y + controlOffset;
+            break;
+        case "center": {
+            const angle = Math.atan2(dy, dx);
+            toControlX = to.x - Math.cos(angle) * controlOffset;
+            toControlY = to.y - Math.sin(angle) * controlOffset;
+            break;
+        }
+    }
 
-    // Add some curvature by offsetting the middle point
-    const offset = Math.abs(to.x - from.x) * 0.2;
-    const controlX = midX;
-    const controlY = midY - offset;
-
-    return [from.x, from.y, controlX, controlY, to.x, to.y];
+    // Return cubic Bézier curve points: start, control1, control2, end
+    return [from.x, from.y, fromControlX, fromControlY, toControlX, toControlY, to.x, to.y];
 }
 
 /**
@@ -194,7 +263,6 @@ function getOrthogonalPoints(
     to: { x: number; y: number },
     fromAnchor: AnchorPoint,
     toAnchor: AnchorPoint,
-    cornerRadius = 10,
 ): number[] {
     const isFromHorizontal = fromAnchor === "left" || fromAnchor === "right";
     const isToHorizontal = toAnchor === "left" || toAnchor === "right";
@@ -256,8 +324,8 @@ export function createConnection(
             points = getStraightPoints(fromPoint, toPoint);
             break;
         case "curved":
-            points = getCurvedPoints(fromPoint, toPoint);
-            tension = defaultConfig.tension || 0.5;
+            points = getCurvedPoints(fromPoint, toPoint, fromAnchor, toAnchor);
+            tension = 0; // For cubic Bézier curves, tension should be 0
             break;
         case "orthogonal":
             points = getOrthogonalPoints(
@@ -265,7 +333,6 @@ export function createConnection(
                 toPoint,
                 fromAnchor,
                 toAnchor,
-                defaultConfig.cornerRadius,
             );
             break;
         default:
@@ -315,7 +382,7 @@ export function createConnection(
  * Update an existing connection when shapes move
  */
 export function updateConnection(
-    connection: any, // Using any to avoid complex Konva type issues
+    connection: { points: (points: number[]) => void; tension?: (tension: number) => void },
     options: ConnectionOptions,
 ): void {
     const {
@@ -324,7 +391,6 @@ export function updateConnection(
         fromAnchor,
         toAnchor,
         connectionType,
-        config = {},
     } = options;
 
     const fromPoint = getAnchorPoint(fromShape, fromAnchor);
@@ -338,8 +404,8 @@ export function updateConnection(
             points = getStraightPoints(fromPoint, toPoint);
             break;
         case "curved":
-            points = getCurvedPoints(fromPoint, toPoint);
-            tension = config.tension || 0.5;
+            points = getCurvedPoints(fromPoint, toPoint, fromAnchor, toAnchor);
+            tension = 0; // For cubic Bézier curves, tension should be 0
             break;
         case "orthogonal":
             points = getOrthogonalPoints(
@@ -347,7 +413,6 @@ export function updateConnection(
                 toPoint,
                 fromAnchor,
                 toAnchor,
-                config.cornerRadius,
             );
             break;
         default:
@@ -365,7 +430,7 @@ export function updateConnection(
  */
 export function createMultipleConnections(
     connectionsList: ConnectionOptions[],
-): any[] {
+): (Konva.LineConfig | Konva.ArrowConfig)[] {
     return connectionsList.map((options) => createConnection(options));
 }
 
@@ -420,7 +485,7 @@ export function createSmartConnection(
     connectionType: ConnectionType = "straight",
     lineType: LineType = "arrow",
     config?: ConnectionConfig,
-): any {
+): Konva.LineConfig | Konva.ArrowConfig {
     const { fromAnchor, toAnchor } = getOptimalAnchorPoints(fromShape, toShape);
 
     return createConnection({

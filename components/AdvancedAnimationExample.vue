@@ -40,11 +40,11 @@ const bouncingBall = ref({
     scaleY: 1,
 });
 
-const fadingElements = [
-    ref({ x: 450, y: 120, width: 40, height: 40, fill: "green", opacity: 0 }),
-    ref({ x: 500, y: 120, width: 40, height: 40, fill: "orange", opacity: 0 }),
-    ref({ x: 550, y: 120, width: 40, height: 40, fill: "purple", opacity: 0 }),
-];
+const fadingElements = ref([
+    { x: 450, y: 120, width: 40, height: 40, fill: "green", opacity: 0 },
+    { x: 500, y: 120, width: 40, height: 40, fill: "orange", opacity: 0 },
+    { x: 550, y: 120, width: 40, height: 40, fill: "purple", opacity: 0 },
+]);
 
 // Complex animation showcasing different techniques
 function* advancedAnimations() {
@@ -95,20 +95,15 @@ function* advancedAnimations() {
             easing: EasingPresets.bounceOut,
         }),
         scaleTo(bouncingBall, { x: 0.8, y: 1.2 }, { duration: 300 }),
+        scaleTo(bouncingBall, 1, { duration: 400, delay: 300, easing: EasingPresets.easeOut }),
     );
 
-    // Ball settles
-    yield scaleTo(bouncingBall, 1, {
-        duration: 400,
-        easing: EasingPresets.easeOut,
-    });
-
     // Step 5: Sequential fade-in of elements (staggered animation)
-    yield fadeTo(fadingElements[0], 1, { duration: 400 });
-
-    yield fadeTo(fadingElements[1], 1, { duration: 400 });
-
-    yield fadeTo(fadingElements[2], 1, { duration: 400 });
+    yield step(
+        fadeTo(fadingElements.value[0], 1, { duration: 1000 }),
+        fadeTo(fadingElements.value[1], 1, { duration: 1000, delay: 1000 }),
+        fadeTo(fadingElements.value[2], 1, { duration: 1000, delay: 2000 }),
+    );
 
     // Step 6: Synchronized complex movement
     yield step(
