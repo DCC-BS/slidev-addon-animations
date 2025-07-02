@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref, shallowRef } from "vue";
-import {
-    type AnimationGeneratorFunction,
-    useGeneratorAnimation,
-} from "../composables/useGeneratorAnimation";
+import { useGeneratorAnimation } from "../composables/useGeneratorAnimation";
 import type { AnimatorProps } from "../types/componentProps.js";
 
 const props = withDefaults(defineProps<AnimatorProps>(), {

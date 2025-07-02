@@ -1,10 +1,9 @@
-// Main composables
+// composables
+export * from "./composables/useGeneratorAnimation.js";
+export * from "./composables/useKonvaAnimation.js";
 
-export { useGeneratorAnimation } from "./composables/useGeneratorAnimation.js";
-export { useKonvaAnimation } from "./composables/useKonvaAnimation.js";
-
-// All types (centralized export)
-export * from "./types/index.js";
+// types
+export type * from "./types/index.js";
 
 // Utility functions
 export * from "./utils/animationEngine.js";

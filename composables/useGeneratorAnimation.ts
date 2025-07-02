@@ -2,21 +2,18 @@ import Konva from "konva";
 import type { ShapeConfig } from "konva/lib/Shape";
 import type { Ref } from "vue";
 import { unref } from "vue";
+import type { AnimatableObject, EasingFunction } from "../types/animation.js";
 import type {
     AnimationGeneratorFunction,
     AnimationGroup,
     AnimationInstruction,
     AnimationProps,
-    SingleAnimation,
-    YieldableAnimation,
 } from "../types/generatorAnimation.js";
 import {
-    type AnimatableObject,
     createAnimationStep,
     createAnimationTarget,
-    type EasingFunction,
-    useKonvaAnimation,
-} from "./useKonvaAnimation";
+} from "../utils/animationHelpers.js";
+import { useKonvaAnimation } from "./useKonvaAnimation.js";
 
 // Helper functions for creating animation instructions
 export function animate(
