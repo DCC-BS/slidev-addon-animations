@@ -90,7 +90,7 @@ function* myAnimation() {
 </template>
 ```
 
-<video src="https://github.com/user-attachments/assets/7eef102f-5146-4049-ba39-04909007e615" controls></video>
+<video src="https://github.com/user-attachments/assets/07af2e1f-dfee-4dc6-baa0-f91934783065" controls></video>
 
 ### Block & Connection System
 
