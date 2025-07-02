@@ -223,6 +223,8 @@ function* myAnimation() {
 </template>
 ```
 
+<video src="https://github.com/user-attachments/assets/f4f95cc7-0277-4834-b8f1-1e9b18697baa" controls></video>
+
 **Key Benefits of Computed Values:**
 - **Automatic Updates**: When `blockBY` is animated, the computed `blockB` automatically recalculates
 - **Dynamic Connections**: The `connection` computed property updates in real-time as block positions change
