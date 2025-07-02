@@ -355,21 +355,161 @@ const { createAnimationFromGenerator, animate, moveTo, scaleTo } = useGeneratorA
 
 ### Animation Helper Functions
 
-- `animate(target, properties, options)` - Animate any properties
-- `moveTo(target, x, y, options)` - Move to position
-- `scaleTo(target, scale, options)` - Scale uniformly or per-axis
-- `rotateTo(target, rotation, options)` - Rotate to angle
-- `fadeTo(target, opacity, options)` - Fade to opacity
-- `show(target, options)` - Fade in to full opacity
-- `hide(target, options)` - Fade out to transparent
-- `step(...animations)` - Group animations to run simultaneously
+#### Core Animation Functions
+
+- **`animate(target, properties, options)`** - Animate any properties on objects
+  - `target: unknown | Ref<unknown>` - The target object or reactive reference to animate
+  - `properties: Record<string, unknown>` - Object containing properties to animate and their target values
+  - `options?: AnimationProps` - Optional animation configuration
+
+- **`animate(target, value, options)`** - Animate ref primitive values directly  
+  - `target: Ref<unknown>` - The reactive reference containing a primitive value
+  - `value: unknown` - The target value to animate to
+  - `options?: AnimationProps` - Optional animation configuration
+
+- **`animateValue(target, value, options)`** - Explicit helper for animating ref values
+  - `target: Ref<unknown>` - The reactive reference to animate
+  - `value: unknown` - The target value to animate to
+  - `options?: AnimationProps` - Optional animation configuration
+
+#### Shape Animation Functions
+
+- **`moveTo(target, x, y, options)`** - Move to position
+  - `target: Ref<ShapeConfig> | ShapeConfig` - The shape object or reactive reference
+  - `x: number` - Target x coordinate
+  - `y: number` - Target y coordinate
+  - `options?: AnimationProps` - Optional animation configuration
+
+- **`scaleTo(target, scale, options)`** - Scale uniformly or per-axis
+  - `target: Ref<ShapeConfig> | ShapeConfig` - The shape object or reactive reference
+  - `scale: number | { x: number; y: number }` - Uniform scale factor or separate x/y scales
+  - `options?: AnimationProps` - Optional animation configuration
+
+- **`rotateTo(target, rotation, options)`** - Rotate to angle
+  - `target: Ref<ShapeConfig> | ShapeConfig` - The shape object or reactive reference
+  - `rotation: number` - Target rotation angle in radians
+  - `options?: AnimationProps` - Optional animation configuration
+
+- **`resizeTo(target, width, height, options)`** - Resize to dimensions
+  - `target: Ref<ShapeConfig> | ShapeConfig` - The shape object or reactive reference
+  - `width: number` - Target width
+  - `height: number` - Target height
+  - `options?: AnimationProps` - Optional animation configuration
+
+- **`fadeTo(target, opacity, options)`** - Fade to opacity
+  - `target: Ref<ShapeConfig> | ShapeConfig` - The shape object or reactive reference
+  - `opacity: number` - Target opacity (0-1)
+  - `options?: AnimationProps` - Optional animation configuration
+
+- **`show(target, options)`** - Fade in to full opacity
+  - `target: Ref<ShapeConfig> | ShapeConfig` - The shape object or reactive reference
+  - `options?: AnimationProps` - Optional animation configuration
+
+- **`hide(target, options)`** - Fade out to transparent
+  - `target: Ref<ShapeConfig> | ShapeConfig` - The shape object or reactive reference
+  - `options?: AnimationProps` - Optional animation configuration
+
+#### Animation Grouping
+
+- **`step(...animations)`** - Group animations to run simultaneously
+  - `...animations: AnimationInstruction[]` - Variable number of animation instructions
+  - Returns: `AnimationInstruction[]` - Array of animation instructions
+
+#### AnimationProps Interface
+
+```typescript
+interface AnimationProps {
+  duration?: number;    // Animation duration in milliseconds (default: 1000)
+  delay?: number;       // Delay before animation starts in milliseconds (default: 0)
+  easing?: EasingFunction | EasingPreset; // Easing function or preset name
+}
+```
 
 ### Components
 
-- **`<Animator>`** - Manages generator-based animations
-- **`<Block>`** - Rectangular blocks with text labels
-- **`<Connection>`** - Dynamic connections between shapes
-- **`<Graphic>`** - Container for Konva stage and layers
+#### `<Animator>` - Generator-based Animation Controller
+
+Manages the execution of generator-based animations synchronized with Slidev's navigation.
+
+**Props:**
+- **`generator?: () => AnimationGeneratorFunction`** - Function that returns the animation generator
+- **`skipThreshold?: number`** - Time threshold in ms for skipping animations (default: 300)
+- **`defaultDuration?: number`** - Default animation duration in ms (default: 1000)
+- **`defaultEasing?: string`** - Default easing preset name (default: "easeInOut")
+
+**Usage:**
+```vue
+<Animator 
+  :generator="myAnimationGenerator"
+  :skipThreshold="200"
+  :defaultDuration="800"
+  defaultEasing="bounceOut"
+/>
+```
+
+#### `<Block>` - Rectangular Blocks with Text Labels
+
+Renders rectangular blocks with customizable appearance and text content.
+
+**Props (BlockConfig):**
+- **`x?: number`** - Horizontal position
+- **`y?: number`** - Vertical position  
+- **`width?: number`** - Block width
+- **`height?: number`** - Block height
+- **`text?: string`** - Text content to display
+- **`scaleX?: number`** - Horizontal scale factor (default: 1)
+- **`scaleY?: number`** - Vertical scale factor (default: 1)
+- **`opacity?: number`** - Opacity level 0-1 (default: 1)
+- **`rotation?: number`** - Rotation angle in radians (default: 0)
+- **`offsetX?: number`** - Horizontal offset for transformations
+- **`offsetY?: number`** - Vertical offset for transformations
+- **`offset?: { x: number; y: number }`** - Alternative offset specification
+- **`rectConfig?: Partial<RectConfig>`** - Additional Konva rectangle properties
+- **`textConfig?: Partial<TextConfig>`** - Additional Konva text properties
+
+**Usage:**
+```vue
+<Block :config="{
+  x: 100, y: 50, width: 120, height: 60,
+  text: 'My Block', opacity: 0.8,
+  rectConfig: { fill: 'lightblue', stroke: 'navy' },
+  textConfig: { fontSize: 18, fill: 'darkblue' }
+}" />
+```
+
+#### `<Connection>` - Dynamic Connections Between Shapes
+
+Creates dynamic lines, arrows, and curves connecting shapes with automatic anchor point calculation.
+
+**Props (ConnectionOptions):**
+- **`fromShape: Shape`** - Source shape object
+- **`toShape: Shape`** - Target shape object  
+- **`fromAnchor: AnchorPoint`** - Connection point on source ("left" | "right" | "top" | "bottom" | "center")
+- **`toAnchor: AnchorPoint`** - Connection point on target ("left" | "right" | "top" | "bottom" | "center")
+- **`connectionType: ConnectionType`** - Line style ("straight" | "curved" | "orthogonal")
+- **`lineType: LineType`** - Line ending ("line" | "arrow" | "double-arrow")
+- **`config?: ConnectionConfig`** - Optional styling configuration
+
+**ConnectionConfig Properties:**
+- **`stroke?: string`** - Line color (default: "black")
+- **`strokeWidth?: number`** - Line thickness (default: 2)
+- **`dash?: number[]`** - Dash pattern for dashed lines
+- **`fill?: string`** - Fill color for arrows
+- **`pointerLength?: number`** - Arrow head length
+- **`pointerWidth?: number`** - Arrow head width  
+- **`tension?: number`** - Curve tension for curved connections
+- **`cornerRadius?: number`** - Corner radius for orthogonal connections
+- **`opacity?: number`** - Connection opacity 0-1
+
+**Usage:**
+```vue
+<Connection :config="{
+  fromShape: blockA, toShape: blockB,
+  fromAnchor: 'right', toAnchor: 'left',
+  connectionType: 'curved', lineType: 'arrow',
+  config: { stroke: 'blue', strokeWidth: 3, tension: 0.5 }
+}" />
+```
 
 ### Easing Functions
 
@@ -377,25 +517,133 @@ Available easing presets: `linear`, `easeIn`, `easeOut`, `easeInOut`, `bounceIn`
 
 ## Project Architecture
 
+The slidev-addon-animations project follows a modular, TypeScript-first architecture designed for maintainability, testing, and extensibility.
+
+### Core Structure
+
 ```
 slidev-addon-animations/
-├── components/          # Vue components for UI elements
-│   ├── Animator.vue    # Generator-based animation controller
-│   ├── Block.vue       # Rectangular block component
-│   ├── Connection.vue  # Dynamic connection lines
-│   └── Graphic.vue     # Konva stage wrapper
-├── composables/        # Reusable animation logic
-│   ├── useKonvaAnimation.ts     # Core animation system
-│   └── useGeneratorAnimation.ts # Generator-based animations
-├── types/              # TypeScript type definitions
-│   └── animation.ts    # Animation system types
-├── utils/              # Animation engine utilities
-│   ├── animationEngine.ts    # Core animation processing
-│   ├── animationHelpers.ts   # Helper functions
-│   ├── lerpSystem.ts         # Interpolation system
-│   └── shapeConnector.ts     # Connection geometry
-└── tests/              # Comprehensive test suite
+├── 📁 components/              # Vue components for UI elements
+│   ├── Animator.vue           # Generator-based animation controller
+│   ├── Block.vue              # Rectangular block component  
+│   ├── Connection.vue         # Dynamic connection lines
+│   └── Graphic.vue            # Konva stage wrapper
+│
+├── 📁 composables/            # Reusable animation logic
+│   ├── useKonvaAnimation.ts   # Core animation system with step control
+│   └── useGeneratorAnimation.ts # High-level generator-based animations
+│
+├── 📁 types/                  # TypeScript type definitions
+│   ├── animation.ts           # Core animation system types
+│   ├── block.ts              # Block component types
+│   ├── componentProps.ts     # Vue component prop interfaces
+│   ├── generatorAnimation.ts # Generator animation types
+│   ├── graphic.ts            # Graphic component types
+│   ├── lerpSystem.ts         # Interpolation system types
+│   ├── shapeConnector.ts     # Shape connection types
+│   └── index.ts              # Unified type exports
+│
+├── 📁 utils/                  # Animation engine utilities
+│   ├── animationEngine.ts    # Core animation processing & timing
+│   ├── animationHelpers.ts   # Helper functions for creating animations
+│   ├── constants.ts          # Shared constants and configurations
+│   ├── lerpSystem.ts         # Value interpolation system
+│   └── shapeConnector.ts     # Connection geometry calculations
+│
+├── 📁 setup/                  # Slidev integration
+│   └── main.ts               # Slidev plugin setup and registration
+│
+├── 📁 tests/                  # Comprehensive test suite
+│   ├── animationEngine.test.ts    # Core animation engine tests
+│   ├── animationHelpers.test.ts   # Helper function tests
+│   ├── examples.test.ts           # Integration example tests
+│   ├── generatorBug.test.ts       # Generator-specific bug tests
+│   ├── helpers.ts                 # Test utility functions
+│   ├── integration.test.ts        # End-to-end integration tests
+│   ├── lerpSystem.test.ts         # Interpolation system tests
+│   ├── refPrimitiveAnimation.test.ts # Ref primitive animation tests
+│   ├── setup.ts                   # Test environment setup
+│   ├── stepDelays.test.ts         # Step delay timing tests
+│   └── types.d.ts                 # Test-specific type definitions
+│
+├── 📁 .github/                # GitHub workflows and automation
+│   └── workflows/             # CI/CD pipeline definitions
+│
+├── 📄 index.ts                # Main entry point and exports
+├── 📄 package.json            # Package configuration and dependencies
+├── 📄 example.md              # Live example presentation
+├── 📄 vitest.config.ts        # Test configuration
+├── 📄 biome.json              # Code quality and formatting rules
+└── 📄 README.md               # This documentation
 ```
+
+### Architecture Principles
+
+#### 🎯 **Separation of Concerns**
+- **Components**: Pure UI presentation layer
+- **Composables**: Reusable business logic  
+- **Utils**: Core algorithms and calculations
+- **Types**: Comprehensive type safety
+
+#### 🔄 **Reactive Design**
+- Vue 3 Composition API throughout
+- Reactive references for real-time updates
+- Computed properties for derived state
+- Watch effects for side effects
+
+#### 🧪 **Test-Driven Development**
+- Comprehensive unit test coverage
+- Integration tests for complex workflows
+- Performance benchmarks for animations
+- Example-based testing for user scenarios
+
+#### 📦 **Modular Export System**
+- Clean public API through `index.ts`
+- Tree-shakable imports
+- TypeScript-first design
+- Consistent naming conventions
+
+### Key Design Patterns
+
+#### **Generator-Based Animation**
+```typescript
+// Clean, readable animation sequences
+function* myAnimation() {
+  yield moveTo(shape, 100, 200);
+  yield scaleTo(shape, 1.5);
+  yield step(
+    fadeTo(shapeA, 0),
+    fadeTo(shapeB, 1)
+  );
+}
+```
+
+#### **Reactive Connection System**
+```typescript
+// Connections automatically update when shapes move
+const connection = computed(() => ({
+  fromShape: blockA.value,
+  toShape: blockB.value,
+  // ... connection config
+}));
+```
+
+#### **Type-Safe Animation Targets**
+```typescript
+// Full TypeScript support for all animation properties
+const target: AnimationTarget = {
+  target: shapeRef.value,
+  steps: [...],
+  initialState: { x: 0, y: 0 }
+};
+```
+
+### Performance Optimizations
+
+- **Animation Skipping**: Rapid navigation detection
+- **Shallow Reactivity**: Optimized ref usage
+- **Batched Updates**: Microtask scheduling
+- **Memory Management**: Proper cleanup and disposal
 
 ## Advanced Usage
 
@@ -439,6 +687,8 @@ function* complexAnimation() {
 ### Dynamic Connections
 
 ```javascript
+const connectionOpacity = ref(0);
+
 const connection = computed(() => ({
   fromShape: blockA.value,
   toShape: blockB.value,
@@ -451,7 +701,7 @@ const connection = computed(() => ({
 }))
 
 // Animate connection appearance
-yield animate(connectionOpacity, { value: 1 }, { duration: 600 })
+yield animate(connectionOpacity, 1, { duration: 600 })
 ```
 
 ## Contributing
