@@ -1,4 +1,4 @@
-# Slidev Addon Animations
+# Slidev Animations Addon
 
 A powerful animation addon for [Slidev](https://github.com/slidevjs/slidev) presentations using Konva.js. Create stunning step-by-step animations, interactive diagrams, and dynamic visual content synchronized with your slide navigation.
 
