@@ -165,6 +165,72 @@ const connectionBC = computed<ConnectionOptions>(() => ({
 
 ![Connection Example](_assets/connection-example.png)
 
+### Animated Connections
+
+The animation system works seamlessly with Vue's reactivity. When you animate reactive references, any computed values depending on them automatically update, making dynamic connections possible:
+
+```vue
+<script setup lang="ts">
+import { animate, type BlockConfig, type ConnectionOptions } from "slidev-addon-animations";
+import { computed, ref } from "vue";
+
+// create a reactive reference for the y-coordinate of block B
+const blockBY = ref(100);
+
+// block A will be a static block with fixed coordinates so we can use a simple object
+const blockA = {
+    x: 50,
+    y: 100,
+    width: 120,
+    height: 60,
+    text: "Block",
+} as BlockConfig;
+
+// create a computed reference for block B that uses the reactive reference
+const blockB = computed<BlockConfig>(() => ({
+    x: 250,
+    y: blockBY.value,
+    width: 120,
+    height: 60,
+    text: "Block",
+}));
+
+// create a computed reference for the connection options between block A and block B
+const connection = computed<ConnectionOptions>(() => ({
+    fromShape: blockA,
+    toShape: blockB.value,
+    type: "curved",
+    fromAnchor: "right",
+    toAnchor: "left",
+    connectionType: "orthogonal",
+    lineType: "double-arrow",
+}));
+
+function* myAnimation() {
+    yield animate(blockBY, 200, { duration: 1000 });
+}
+</script>
+
+<template>
+    <Animator :generator="myAnimation" />
+    <v-stage :width="400" :height="300">
+        <v-layer>
+            <Block :config="blockA" />
+            <Block :config="blockB" />
+            <Connection :config="connection" />
+        </v-layer>
+    </v-stage>
+</template>
+```
+
+**Key Benefits of Computed Values:**
+- **Automatic Updates**: When `blockBY` is animated, the computed `blockB` automatically recalculates
+- **Dynamic Connections**: The `connection` computed property updates in real-time as block positions change
+- **Reactive Chains**: Changes propagate through the entire reactive dependency graph
+- **Performance**: Vue's reactivity system ensures only necessary updates are triggered
+
+This approach enables smooth, synchronized animations where connections automatically adjust as blocks move, creating fluid and professional-looking animated diagrams.
+
 ## Development
 
 ### Setup Development Environment
