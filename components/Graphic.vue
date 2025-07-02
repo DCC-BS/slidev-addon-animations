@@ -1,14 +1,6 @@
 <script lang="ts" setup>
 import { computed } from "vue";
-import type { ConnectionOptions } from "../utils/shapeConnector";
-import type { BlockConfig } from "./Block.vue";
-
-interface GraphicProps {
-    width?: number;
-    height?: number;
-    blocks?: BlockConfig[];
-    connections?: ConnectionOptions[];
-}
+import type { GraphicProps } from "../types/graphic.js";
 
 const props = withDefaults(defineProps<GraphicProps>(), {
     width: 1600,

@@ -155,18 +155,3 @@ export function useKonvaAnimation(
         stopAllTweens,
     };
 }
-
-// Re-export types for convenience
-export type {
-    AnimatableObject,
-    AnimationOptions,
-    AnimationStep,
-    AnimationTarget,
-    EasingFunction,
-} from "../types/animation.js";
-
-// Re-export helper functions for convenience
-export {
-    createAnimationStep,
-    createAnimationTarget,
-} from "../utils/animationHelpers.js";

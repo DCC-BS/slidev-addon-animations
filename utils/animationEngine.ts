@@ -4,7 +4,8 @@ import type {
     EasingFunction,
     ProcessedAnimation,
 } from "../types/animation.js";
-import { type AnimatableValue, lerp } from "./lerpSystem.js";
+import type { AnimatableValue } from "../types/lerpSystem";
+import { lerp } from "./lerpSystem";
 
 /**
  * Processes animation targets into optimized animation objects

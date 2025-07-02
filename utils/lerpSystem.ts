@@ -2,30 +2,12 @@
  * Generic lerp system for different value types
  */
 
-// Supported animatable value types
-export type AnimatableValue = number | string | Color;
-
-// Color type for RGB/RGBA values
-export interface Color {
-    r: number; // 0-255
-    g: number; // 0-255
-    b: number; // 0-255
-    a?: number; // 0-1
-}
-
-// Lerp function type
-export type LerpFunction<T = AnimatableValue> = (
-    start: T,
-    end: T,
-    progress: number,
-) => T;
-
-// Generic lerp function type for the registry
-export type GenericLerpFunction = (
-    start: AnimatableValue,
-    end: AnimatableValue,
-    progress: number,
-) => AnimatableValue;
+import type {
+    AnimatableValue,
+    Color,
+    GenericLerpFunction,
+    LerpFunction,
+} from "../types/lerpSystem.js";
 
 // Lerp registry for different types
 export const lerpRegistry = new Map<string, GenericLerpFunction>();

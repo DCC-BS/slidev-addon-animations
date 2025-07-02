@@ -4,16 +4,9 @@ import {
     type AnimationGeneratorFunction,
     useGeneratorAnimation,
 } from "../composables/useGeneratorAnimation";
+import type { AnimatorProps } from "../types/componentProps.js";
 
-// Props interface for generator-based animations
-interface Props {
-    generator?: () => AnimationGeneratorFunction;
-    skipThreshold?: number;
-    defaultDuration?: number;
-    defaultEasing?: string;
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<AnimatorProps>(), {
     skipThreshold: 300,
     defaultDuration: 1000,
     defaultEasing: "easeInOut",

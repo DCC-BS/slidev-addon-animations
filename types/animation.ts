@@ -1,4 +1,4 @@
-import type { AnimatableValue } from "../utils/lerpSystem.js";
+import type { AnimatableValue } from "./lerpSystem.js";
 
 // Konva easing function type
 export type EasingFunction = (
