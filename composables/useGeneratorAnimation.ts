@@ -16,20 +16,57 @@ import {
 import { useKonvaAnimation } from "./useKonvaAnimation.js";
 
 // Helper functions for creating animation instructions
+// Overload for ref primitive types - animate the value property directly
+export function animate(
+    target: Ref<unknown>,
+    value: unknown,
+    options?: AnimationProps,
+): AnimationInstruction;
+// Overload for object types - animate multiple properties
 export function animate(
     target: unknown | Ref<unknown>,
     properties: Record<string, unknown>,
     options?: AnimationProps,
+): AnimationInstruction;
+// Implementation
+export function animate(
+    target: unknown | Ref<unknown>,
+    propertiesOrValue: Record<string, unknown> | unknown,
+    options?: AnimationProps,
 ): AnimationInstruction {
-    // Unpack ref if target is a ref, otherwise use target directly
-    const actualTarget = unref(target);
+    // Check if target is a ref and propertiesOrValue is not a properties object
+    const isRefTarget = target && typeof target === 'object' && 'value' in target;
+    const isPropertiesObject = propertiesOrValue && 
+        typeof propertiesOrValue === 'object' && 
+        !Array.isArray(propertiesOrValue) &&
+        propertiesOrValue.constructor === Object;
 
-    return {
-        type: "animate",
-        target: actualTarget,
-        properties,
-        options: options || {},
-    };
+    if (isRefTarget && !isPropertiesObject) {
+        // This is a ref primitive type, animate the value property
+        return {
+            type: "animate",
+            target: target,
+            properties: { value: propertiesOrValue },
+            options: options || {},
+        };
+    } else {
+        // Standard behavior for object types
+        const actualTarget = unref(target);
+        return {
+            type: "animate",
+            target: actualTarget,
+            properties: propertiesOrValue as Record<string, unknown>,
+            options: options || {},
+        };
+    }
+}
+
+export function animateValue(
+    target: Ref<unknown>,
+    value: unknown,
+    options?: AnimationProps,
+): AnimationInstruction {
+    return animate(target, value, options);
 }
 
 export function moveTo(
@@ -338,6 +375,7 @@ export function useGeneratorAnimation(
         createAnimationFromGenerator,
         EasingPresets,
         animate,
+        animateValue,
         moveTo,
         scaleTo,
         resizeTo,

@@ -54,31 +54,37 @@ addons:
 
 ```vue
 <script setup lang="ts">
-import { animate, step, moveTo, scaleTo, EasingPresets } from 'slidev-addon-animations'
-import { Animator } from 'slidev-addon-animations/components'
+import {
+    animate,
+    EasingPresets,
+    moveTo,
+    scaleTo,
+    step,
+} from "slidev-addon-animations";
+import { ref } from "vue";
 
-const circle = ref({ x: 100, y: 100, radius: 30, fill: 'red' })
+const circle = ref({ x: 100, y: 100, radius: 30, fill: "red" });
 
 function* myAnimation() {
-  // Step 1: Move and scale simultaneously
-  yield step(
-    moveTo(circle, 200, 150, { duration: 1000 }),
-    scaleTo(circle, 1.5, { easing: EasingPresets.bounceOut })
-  )
-  
-  // Step 2: Change color
-  yield animate(circle, { fill: 'blue' }, { duration: 500 })
+    // Step 1: Move and scale simultaneously
+    yield step(
+        moveTo(circle, 200, 150, { duration: 1000 }),
+        scaleTo(circle, 1.5, { easing: EasingPresets.bounceOut }),
+    );
+
+    // Step 2: Change color
+    yield animate(circle, { fill: "blue" }, { duration: 500 });
 }
 </script>
 
 <template>
-  <Animator :generator="myAnimation">
-  </Animator>
-  <v-stage :width="400" :height="300">
-    <v-layer>
-      <v-circle :config="circle" />
-    </v-layer>
-  </v-stage>
+    <Animator :generator="myAnimation">
+    </Animator>
+    <v-stage :width="400" :height="300">
+      <v-layer>
+          <v-circle :config="circle" />
+      </v-layer>
+    </v-stage>
 </template>
 ```
 
@@ -87,34 +93,77 @@ function* myAnimation() {
 ### Block & Connection System
 
 ```vue
-<script setup>
-import { Block, Connection, Graphic } from 'slidev-addon-animations/components'
+<script setup lang="ts">
+import type { BlockConfig, ConnectionOptions } from "slidev-addon-animations";
+import { computed, ref } from "vue";
 
-const blockA = ref({ 
-  x: 50, y: 100, width: 120, height: 60, text: 'Start' 
-})
-const blockB = ref({ 
-  x: 250, y: 100, width: 120, height: 60, text: 'End' 
-})
+const blockA = ref<BlockConfig>({
+    x: 50,
+    y: 100,
+    width: 120,
+    height: 60,
+    text: "A",
+});
 
-const connection = computed(() => ({
-  fromShape: blockA.value,
-  toShape: blockB.value,
-  fromAnchor: 'right',
-  toAnchor: 'left',
-  connectionType: 'straight',
-  lineType: 'arrow'
-}))
+const blockB = ref<BlockConfig>({
+    x: 250,
+    y: 100,
+    width: 120,
+    height: 60,
+    text: "B",
+});
+
+const blockC = ref<BlockConfig>({
+    x: 250,
+    y: 200,
+    width: 120,
+    height: 60,
+    text: "C",
+});
+
+const connectionAB = computed<ConnectionOptions>(() => ({
+    fromShape: blockA.value,
+    toShape: blockB.value,
+    fromAnchor: "right",
+    toAnchor: "left",
+    connectionType: "straight",
+    lineType: "arrow",
+}));
+
+const connectionAC = computed<ConnectionOptions>(() => ({
+    fromShape: blockA.value,
+    toShape: blockC.value,
+    fromAnchor: "bottom",
+    toAnchor: "left",
+    connectionType: "orthogonal",
+    lineType: "arrow",
+}));
+
+const connectionBC = computed<ConnectionOptions>(() => ({
+    fromShape: blockB.value,
+    toShape: blockC.value,
+    fromAnchor: "right",
+    toAnchor: "right",
+    connectionType: "curved",
+    lineType: "double-arrow",
+}));
 </script>
 
 <template>
-  <Graphic :width="400" :height="200">
-    <Block :config="blockA" />
-    <Block :config="blockB" />
-    <Connection :config="connection" />
-  </Graphic>
+    <v-stage :width="600" :height="300">
+        <v-layer>
+            <Block :config="blockA" />
+            <Block :config="blockB" />
+            <Block :config="blockC" />
+            <Connection :config="connectionAB" />
+            <Connection :config="connectionAC" />
+            <Connection :config="connectionBC" />
+        </v-layer>
+    </v-stage>
 </template>
 ```
+
+![Connection Example](_assets/connection-example.png)
 
 ## Development
 
