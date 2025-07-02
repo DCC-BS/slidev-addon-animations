@@ -82,6 +82,8 @@ function* myAnimation() {
 </template>
 ```
 
+<video src="_assets/basic-animation.mp4"  controls></video>
+
 ### Block & Connection System
 
 ```vue
