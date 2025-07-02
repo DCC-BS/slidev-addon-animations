@@ -1,0 +1,10 @@
+_assets
+.github
+.vscode
+examples.md
+.gitignore
+tests
+components/AdvancedAnimationExample.vue
+components/AnimationExample.vue
+components/ColorAnimationDemo.vue
+components/DocumentationOverview.vue
