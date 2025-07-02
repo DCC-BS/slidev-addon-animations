@@ -65,7 +65,7 @@ import {
 } from "slidev-addon-animations";
 import { ref } from "vue";
 
-const circle = ref({ x: 100, y: 100, radius: 30, fill: "red" });
+const circle = ref({ x: 100, y: 100, scaleX: 1, scaleY: 1, radius: 30, fill: "red" });
 
 function* myAnimation() {
     // Step 1: Move and scale simultaneously
