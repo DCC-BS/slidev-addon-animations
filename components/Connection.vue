@@ -1,10 +1,7 @@
 <script lang="ts" setup>
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import type { ConnectionProps } from "../types/componentProps.js";
-import {
-    type ConnectionOptions,
-    createConnection,
-} from "../utils/shapeConnector";
+import { createConnection } from "../utils/shapeConnector";
 
 const props = defineProps<ConnectionProps>();
 const config = computed(() => createConnection(props.config));

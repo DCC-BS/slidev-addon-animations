@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { StageConfig } from "konva/lib/Stage";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import {
     animate,
     EasingPresets,
@@ -10,11 +10,8 @@ import {
     scaleTo,
     step,
 } from "../composables/useGeneratorAnimation";
-import type { ConnectionOptions } from "../utils/shapeConnector";
-import Animator from "./Animator.vue";
-import type { BlockConfig } from "./Block.vue";
-import Block from "./Block.vue";
-import Connection from "./Connection.vue";
+import type { BlockConfig } from "../types/block";
+import type { ConnectionOptions } from "../types/shapeConnector";
 
 const stageConfig = ref<StageConfig>({
     width: 700,

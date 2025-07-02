@@ -12,7 +12,6 @@ import {
     scaleTo,
     step,
 } from "../composables/useGeneratorAnimation";
-import Animator from "./Animator.vue";
 
 const stageConfig = ref<StageConfig>({
     width: 600,

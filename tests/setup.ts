@@ -1,5 +1,18 @@
 import { afterEach, beforeEach, vi } from "vitest";
 
+// Mock Slidev client to avoid import errors in tests
+vi.mock("@slidev/client", () => ({
+    useSlideContext: () => ({
+        $slidev: {
+            nav: {
+                currentSlideNo: 1,
+                nextSlide: vi.fn(),
+                prevSlide: vi.fn(),
+            },
+        },
+    }),
+}));
+
 // Enhanced RAF mock that maintains proper timing behavior
 let rafId = 0;
 const rafCallbacks = new Map<number, FrameRequestCallback>();

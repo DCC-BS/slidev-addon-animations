@@ -8,7 +8,6 @@ import {
     scaleTo,
     step,
 } from "../composables/useGeneratorAnimation";
-import Animator from "./Animator.vue";
 
 // Animation objects
 const title = ref({

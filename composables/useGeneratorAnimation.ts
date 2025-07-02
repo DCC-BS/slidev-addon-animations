@@ -35,9 +35,11 @@ export function animate(
     options?: AnimationProps,
 ): AnimationInstruction {
     // Check if target is a ref and propertiesOrValue is not a properties object
-    const isRefTarget = target && typeof target === 'object' && 'value' in target;
-    const isPropertiesObject = propertiesOrValue && 
-        typeof propertiesOrValue === 'object' && 
+    const isRefTarget =
+        target && typeof target === "object" && "value" in target;
+    const isPropertiesObject =
+        propertiesOrValue &&
+        typeof propertiesOrValue === "object" &&
         !Array.isArray(propertiesOrValue) &&
         propertiesOrValue.constructor === Object;
 
