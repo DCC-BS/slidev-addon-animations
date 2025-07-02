@@ -2,6 +2,8 @@
 
 A powerful animation addon for [Slidev](https://github.com/slidevjs/slidev) presentations using Konva.js. Create stunning step-by-step animations, interactive diagrams, and dynamic visual content synchronized with your slide navigation.
 
+<video src="https://github.com/user-attachments/assets/fdac54b7-6c54-4767-9fa1-9673c495c5ea" controls></video>
+
 ## Features
 
 - **Step-by-Step Animations**: Synchronized with Slidev's click navigation system
