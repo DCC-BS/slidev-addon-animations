@@ -50,6 +50,19 @@ addons:
 ---
 ```
 
+### Add or update the `vite.config.ts` file
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+
+export default defineConfig({
+    optimizeDeps: {
+        include: ["konva", "vue-konva"],
+    },
+});
+
+```
+
 ## Quick Start
 
 ### Basic Animation Example
