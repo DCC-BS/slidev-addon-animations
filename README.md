@@ -82,7 +82,7 @@ function* myAnimation() {
 </template>
 ```
 
-<video src="_assets/basic-animation.mp4"  controls></video>
+<video src="https://github.com/user-attachments/assets/7eef102f-5146-4049-ba39-04909007e615" controls></video>
 
 ### Block & Connection System
 
