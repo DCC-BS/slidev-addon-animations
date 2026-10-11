@@ -31,7 +31,7 @@
         "vue-konva": "^3.2.1"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.0.6",
+        "@biomejs/biome": "2.5.15",
         "@slidev/cli": "^51.8.2",
         "@vitest/coverage-v8": "^3.2.4",
         "@vitest/ui": "^3.2.4",
